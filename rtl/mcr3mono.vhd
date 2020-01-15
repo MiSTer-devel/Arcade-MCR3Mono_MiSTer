@@ -927,7 +927,7 @@ port map (
  sint  => op_6(0),
  sndsel => op_6(4 downto 1),
  stat => snd_stat,
- extreset_n => '1', -- should come from watchdog
+ extreset_n => op_6(5), -- should come from watchdog
  rom_addr => sg_rom_addr,
  rom_do => snd_rom_do,
  audio_out => sg_audio

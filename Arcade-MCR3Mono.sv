@@ -392,7 +392,7 @@ always @(*) begin
 		input0 = ~{2'b00, sw[1][0], 1'b0, 2'b00, m_coin2, m_coin1};
 		input1 = ~{2'b00, m_fire1b, m_fire1a, m_left1, m_down1, m_right1, m_up1};
 		input2 = ~{2'b00, m_fire2b, m_fire2a, m_left2, m_down2, m_right2, m_up2};
-		input4 = ~{2'b00, m_fire3b, m_fire3a, m_left3, m_down3, m_right3, m_up3};
+		input4 = ~{sndstat[0],1'b0, m_fire3b, m_fire3a, m_left3, m_down3, m_right3, m_up3};
 	end
 	else if (mod_powerdrive) begin
 		// Controls for 3 players using 4 buttons/joystick
