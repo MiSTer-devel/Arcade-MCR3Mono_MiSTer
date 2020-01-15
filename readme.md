@@ -15,5 +15,8 @@ Up to 3 players.
 ### Power Drive
 Up to 3 players. Each playey has its own coin button to join.
 
-### MaxRPM
+### Max RPM
 Up to 2 players. Each player has its own start button to join.
+
+### Demolition Derby
+Up to 4 players. Each player has its own start button to join.

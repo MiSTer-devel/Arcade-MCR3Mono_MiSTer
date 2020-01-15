@@ -116,6 +116,8 @@ localparam CONF_STR = {
 	"-;",
 	"H1O6,Control,Mode 1,Mode 2;",
 	"H1-;",
+	//"H2O6,Control,Digital,Analog;",
+	//"H2-;",
 	"DIP;",
 	"-;",
 	"R0,Reset;",
@@ -154,8 +156,9 @@ wire  [7:0] ioctl_index;
 
 wire [10:0] ps2_key;
 
-wire [15:0] joy1, joy2, joy3;
-wire [15:0] joy = joy1 | joy2 | joy3;
+wire [15:0] joy1, joy2, joy3, joy4;
+wire [15:0] joy = joy1 | joy2 | joy3 | joy4;
+wire [15:0] joy1a, joy2a, joy3a, joy4a;
 
 wire [21:0] gamma_bus;
 
@@ -168,7 +171,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask({~mod_sarge, direct_video}),
+	.status_menumask({~mod_demderby, ~mod_sarge, direct_video}),
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
@@ -182,6 +185,12 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 	.joystick_0(joy1),
 	.joystick_1(joy2),
 	.joystick_2(joy3),
+	.joystick_3(joy4),
+
+	.joystick_analog_0(joy1a),
+	.joystick_analog_1(joy2a),
+	.joystick_analog_2(joy3a),
+	.joystick_analog_3(joy4a),
 
 	.ps2_key(ps2_key)
 );
@@ -190,6 +199,7 @@ reg mod_rampage    = 0;
 reg mod_sarge      = 0;
 reg mod_powerdrive = 0;
 reg mod_maxrpm     = 0;
+reg mod_demderby   = 0;
 
 always @(posedge clk_sys) begin
 	reg [7:0] mod = 0;
@@ -199,6 +209,7 @@ always @(posedge clk_sys) begin
 	mod_sarge	   <= (mod == 1);
 	mod_powerdrive	<= (mod == 2);
 	mod_maxrpm	   <= (mod == 3);
+	mod_demderby   <= (mod == 4);
 end
 
 // load the DIPS
@@ -286,18 +297,18 @@ wire m_fire1c  = btn_fireC  | joy1[6];
 wire m_fire1d  = btn_fireD  | joy1[7];
 
 wire m_coin2   = mod_powerdrive & (btn_coin2 | joy2[9]);
-wire m_start2  = btn_start2 | joy3[8];
-wire m_left2   = btn_left2  | joy3[1];
-wire m_right2  = btn_right2 | joy3[0];
-wire m_up2     = btn_up2    | joy3[3];
-wire m_down2   = btn_down2  | joy3[2];
-wire m_fire2a  = btn_fire2A | joy3[4];
-wire m_fire2b  = btn_fire2B | joy3[5];
-wire m_fire2c  = btn_fire2C | joy3[6];
-wire m_fire2d  = btn_fire2D | joy3[7];
+wire m_start2  = btn_start2 | joy2[8];
+wire m_left2   = btn_left2  | joy2[1];
+wire m_right2  = btn_right2 | joy2[0];
+wire m_up2     = btn_up2    | joy2[3];
+wire m_down2   = btn_down2  | joy2[2];
+wire m_fire2a  = btn_fire2A | joy2[4];
+wire m_fire2b  = btn_fire2B | joy2[5];
+wire m_fire2c  = btn_fire2C | joy2[6];
+wire m_fire2d  = btn_fire2D | joy2[7];
 
-wire m_coin3   = mod_powerdrive & (btn_coin3 | joy3[9]);
-//wire m_start3  = btn_start3;
+wire m_coin3   = mod_powerdrive & joy3[9];
+wire m_start3  = joy3[8];
 wire m_left3   = joy3[1];
 wire m_right3  = joy3[0];
 wire m_up3     = joy3[3];
@@ -306,6 +317,17 @@ wire m_fire3a  = joy3[4];
 wire m_fire3b  = joy3[5];
 wire m_fire3c  = joy3[6];
 wire m_fire3d  = joy3[7];
+
+wire m_coin4   = 0;
+wire m_start4  = joy4[8];
+wire m_left4   = joy4[1];
+wire m_right4  = joy4[0];
+//wire m_up4     = joy4[3];
+//wire m_down4   = joy4[2];
+wire m_fire4a  = joy4[4];
+wire m_fire4b  = joy4[5];
+//wire m_fire4c  = joy4[6];
+//wire m_fire4d  = joy4[7];
 
 reg       sg; // Sounds Good board
 reg [7:0] input0;
@@ -316,9 +338,32 @@ reg [7:0] input4;
 reg [7:0] output5;
 reg [7:0] output6;
 
+reg inp_mux;
+always @(posedge clk_sys) begin
+	if(output6[7]) inp_mux <= 0;
+	if(output6[6]) inp_mux <= 1;
+end
+
+wire [5:0] wh1, wh2, wh3, wh4;
+always @(posedge clk_sys) begin
+/*
+	if(status[6]) begin
+		wh1 <= {~joy1a[7], joy1a[6:2]};
+		wh2 <= {~joy2a[7], joy2a[6:2]};
+		wh3 <= {~joy3a[7], joy3a[6:2]};
+		wh4 <= {~joy4a[7], joy4a[6:2]};
+	end
+	else*/ begin
+		wh1 <= wheel1[6:1];
+		wh2 <= wheel2[6:1];
+		wh3 <= wheel3[6:1];
+		wh4 <= wheel4[6:1];
+	end
+end
+
 // Game specific sound board/DIP/input settings
 always @(*) begin
-	sg = ~(mod_sarge | mod_maxrpm);
+	sg = ~(mod_sarge | mod_maxrpm | mod_demderby);
 
 	input0 = 8'hff;
 	input1 = 8'hff;
@@ -330,17 +375,26 @@ always @(*) begin
 		input0 = ~{2'b00, sw[1][0], 1'b0, m_start2, m_start1, m_coin2, m_coin1};
 		input1 = ~{s_f1b, s_f1b, s_f1a, s_f1a, s_rd1, s_ru1, s_ld1, s_lu1};
 		input2 = ~{s_f2b, s_f2b, s_f2a, s_f2a, s_rd2, s_ru2, s_ld2, s_lu2};
-	end else if (mod_maxrpm) begin
+	end
+	else if (mod_demderby) begin
+		input0 = ~{2'b00, sw[1][0], 1'b0, m_start2, m_start1, m_coin2, m_coin1};
+		input1 = ~{inp_mux ? wh3 : wh1, m_fire1b, m_fire1a};
+		input2 = ~{inp_mux ? wh4 : wh2, m_fire2b, m_fire2a};
+		input4 = ~{m_fire4b, m_fire4a, m_fire3b, m_fire3a, m_start4, m_start3, m_coin4, m_coin3};
+	end
+	else if (mod_maxrpm) begin
 		input0 = ~{sw[1][0], 3'b000, m_start1, m_start2, m_coin1, m_coin2};
 		input1 =  {pedal1[5:2], pedal2[5:2]};
 		input2 = ~{maxrpm_gear1, maxrpm_gear2};
-	end else if (mod_rampage) begin
+	end
+	else if (mod_rampage) begin
 		// normal controls for 3 players
 		input0 = ~{2'b00, sw[1][0], 1'b0, 2'b00, m_coin2, m_coin1};
 		input1 = ~{2'b00, m_fire1b, m_fire1a, m_left1, m_down1, m_right1, m_up1};
 		input2 = ~{2'b00, m_fire2b, m_fire2a, m_left2, m_down2, m_right2, m_up2};
 		input4 = ~{2'b00, m_fire3b, m_fire3a, m_left3, m_down3, m_right3, m_up3};
-	end else if (mod_powerdrive) begin
+	end
+	else if (mod_powerdrive) begin
 		// Controls for 3 players using 4 buttons/joystick
 		input0 = ~{2'b00, sw[1][0], 1'b0, 1'b0, m_coin3, m_coin2, m_coin1};
 		input1 = ~{m_fire2b, m_fire2a, powerdrv_gear[1], m_fire2c, m_fire1b, m_fire1a, powerdrv_gear[0], m_fire1c};
@@ -593,6 +647,50 @@ spinner spinner2 (
 	.spin_angle(pedal2)
 );
 
+
+wire [6:0] wheel1;
+spinner emu_w1 (
+	.clock_40(clk_sys),
+	.reset(reset),
+	.btn_acc(0),
+	.btn_left(m_left1),
+	.btn_right(m_right1),
+	.ctc_zc_to_2(VSync),
+	.spin_angle(wheel1)
+);
+
+wire [6:0] wheel2;
+spinner emu_w2 (
+	.clock_40(clk_sys),
+	.reset(reset),
+	.btn_acc(0),
+	.btn_left(m_left2),
+	.btn_right(m_right2),
+	.ctc_zc_to_2(VSync),
+	.spin_angle(wheel2)
+);
+
+wire [6:0] wheel3;
+spinner emu_w3 (
+	.clock_40(clk_sys),
+	.reset(reset),
+	.btn_acc(0),
+	.btn_left(m_left3),
+	.btn_right(m_right3),
+	.ctc_zc_to_2(VSync),
+	.spin_angle(wheel3)
+);
+
+wire [6:0] wheel4;
+spinner emu_w4 (
+	.clock_40(clk_sys),
+	.reset(reset),
+	.btn_acc(0),
+	.btn_left(m_left4),
+	.btn_right(m_right4),
+	.ctc_zc_to_2(VSync),
+	.spin_angle(wheel4)
+);
 
 endmodule
 
