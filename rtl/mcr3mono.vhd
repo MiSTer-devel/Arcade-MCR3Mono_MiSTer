@@ -139,7 +139,6 @@ port(
  video_g        : out std_logic_vector(2 downto 0);
  video_b        : out std_logic_vector(2 downto 0);
  video_csync    : out std_logic;
- video_blankn   : out std_logic;
  video_hblank   : out std_logic;
  video_vblank   : out std_logic;
  video_hs       : out std_logic;

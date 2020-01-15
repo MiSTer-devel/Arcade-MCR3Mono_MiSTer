@@ -46,6 +46,8 @@ architecture rtl of gen_ram is
 	subtype addressRange is integer range 0 to ((2**aWidth)-1);
 	type ramDef is array(addressRange) of std_logic_vector((dWidth-1) downto 0);
 	signal ram: ramDef;
+	ATTRIBUTE ramstyle : string;
+	ATTRIBUTE ramstyle OF ram : SIGNAL IS "no_rw_check";
 
 	signal rAddrReg : std_logic_vector((aWidth-1) downto 0);
 	signal qReg : std_logic_vector((dWidth-1) downto 0);

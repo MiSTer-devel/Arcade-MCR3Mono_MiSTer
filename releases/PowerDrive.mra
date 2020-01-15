@@ -6,15 +6,17 @@
 	<manufacturer>Bally Midway</manufacturer>
 	<category>Action</category>
 	<rbf>MCR3Mono</rbf>
-        <rom index="1">
-                <part>2</part>
-        </rom>
-        <switches default="FF">
-                <dip bits="1,2"  name="Coinage" ids="1C_1C,1C_2C,2C_1C,1C_1C" />
-                <dip bits="5,6"    name="Difficulty" ids="Hardest,Hard,Easy,Factory"/>
-                <dip bits="7"    name="Demo Sounds" ids="On,Off"/>
-                <dip bits="8"    name="Rack Advance (cheat)" ids="On,Off"/>
-        </switches>
+	<setname>powerdrv</setname>
+	<switches default="FF 00">
+		<dip bits="0,1"  name="Coinage" ids="1c/2cr,2c/1cr,1c/1cr" values="1,2,3"/>
+		<dip bits="4,5"  name="Difficulty" ids="Hardest,Hard,Easy,Factory"/>
+		<dip bits="6"    name="Demo Sounds" ids="On,Off"/>
+		<dip bits="7"    name="Rack Advance (cheat)" ids="On,Off"/>
+		<dip bits="8"    name="Service" ids="Off,On"/>
+	</switches>
+	<rom index="1">
+		<part>2</part>
+	</rom>
 	<rom index="0" zip="powerdrv.zip" amd5="7300967c61a0f1b887c12f3989e500bb" type="merged|nonmerged">
 		<part crc="" name="pdrv3b.bin"/>
 		<part crc="" name="pdrv5b.bin"/>
