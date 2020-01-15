@@ -114,6 +114,8 @@ localparam CONF_STR = {
 	"H0O1,Aspect Ratio,Original,Wide;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
+	"H1O6,Control,Mode 1,Mode 2;",
+	"H1-;",
 	"DIP;",
 	"-;",
 	"R0,Reset;",
@@ -166,7 +168,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask(direct_video),
+	.status_menumask({~mod_sarge, direct_video}),
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
@@ -315,7 +317,6 @@ reg [7:0] output5;
 reg [7:0] output6;
 
 // Game specific sound board/DIP/input settings
-// Game specific sound board/DIP/input settings
 always @(*) begin
 	sg = ~(mod_sarge | mod_maxrpm);
 
@@ -325,28 +326,45 @@ always @(*) begin
 	input3 = sw[0];
 	input4 = 8'hff;
 
-	if (mod_sarge  ) begin
-		// Stick up/down + Buttons X/B to simulate 2 joysticks
+	if (mod_sarge) begin
 		input0 = ~{2'b00, sw[1][0], 1'b0, m_start2, m_start1, m_coin2, m_coin1};
-		input1 = ~{m_fire1d, m_fire1d, m_fire1a, m_fire1a, m_fire1b, m_fire1c, m_down1, m_up1};
-		input2 = ~{m_fire2d, m_fire2d, m_fire2a, m_fire2a, m_fire2b, m_fire2c, m_down2, m_up2};
-	end else if (mod_maxrpm  ) begin
+		input1 = ~{s_f1b, s_f1b, s_f1a, s_f1a, s_rd1, s_ru1, s_ld1, s_lu1};
+		input2 = ~{s_f2b, s_f2b, s_f2a, s_f2a, s_rd2, s_ru2, s_ld2, s_lu2};
+	end else if (mod_maxrpm) begin
 		input0 = ~{sw[1][0], 3'b000, m_start1, m_start2, m_coin1, m_coin2};
 		input1 =  {pedal1[5:2], pedal2[5:2]};
 		input2 = ~{maxrpm_gear1, maxrpm_gear2};
-	end else if (mod_rampage ) begin
+	end else if (mod_rampage) begin
 		// normal controls for 3 players
 		input0 = ~{2'b00, sw[1][0], 1'b0, 2'b00, m_coin2, m_coin1};
 		input1 = ~{2'b00, m_fire1b, m_fire1a, m_left1, m_down1, m_right1, m_up1};
 		input2 = ~{2'b00, m_fire2b, m_fire2a, m_left2, m_down2, m_right2, m_up2};
 		input4 = ~{2'b00, m_fire3b, m_fire3a, m_left3, m_down3, m_right3, m_up3};
-	end else if (mod_powerdrive ) begin
+	end else if (mod_powerdrive) begin
 		// Controls for 3 players using 4 buttons/joystick
 		input0 = ~{2'b00, sw[1][0], 1'b0, 1'b0, m_coin3, m_coin2, m_coin1};
 		input1 = ~{m_fire2b, m_fire2a, powerdrv_gear[1], m_fire2c, m_fire1b, m_fire1a, powerdrv_gear[0], m_fire1c};
 		input2 = ~{sndstat[0], 3'b000, m_fire3b, m_fire3a, powerdrv_gear[2], m_fire3c};
 	end
 end
+
+wire s_lu1, s_ld1, s_ru1, s_rd1, s_f1a, s_f1b;
+twosticks twosticks1
+(
+	status[6],
+	m_left1, m_right1, m_up1, m_down1,
+	m_fire1a, m_fire1b, m_fire1c, m_fire1d,
+	s_lu1, s_ld1, s_ru1, s_rd1, s_f1a, s_f1b
+);
+
+wire s_lu2, s_ld2, s_ru2, s_rd2, s_f2a, s_f2b;
+twosticks twosticks2
+(
+	status[6],
+	m_left2, m_right2, m_up2, m_down2,
+	m_fire2a, m_fire2b, m_fire2c, m_fire2d,
+	s_lu2, s_ld2, s_ru2, s_rd2, s_f2a, s_f2b
+);
 
 wire rom_download = ioctl_download && !ioctl_index;
 
@@ -575,5 +593,24 @@ spinner spinner2 (
 	.spin_angle(pedal2)
 );
 
+
+endmodule
+
+module twosticks
+(
+	input mode,
+	input l,r,u,d,
+	input ba,bb,bc,bd,
+	
+	output lu,ld,ru,rd,
+	output f1,f2
+);
+
+assign lu = mode ? (u | r) : u;
+assign ld = mode ? (d | l) : d;
+assign ru = mode ? (u | l) : bc;
+assign rd = mode ? (d | r) : bb;
+assign f1 = ba;
+assign f2 = mode ? bb : bd;
 
 endmodule
