@@ -1,0 +1,32 @@
+<misterromdescription>
+	<name>PowerDrive</name>
+	<mameversion>0216</mameversion>
+	<mratimestamp>201912310000</mratimestamp>
+	<year>1983</year>
+	<manufacturer>Bally Midway</manufacturer>
+	<category>Action</category>
+	<rbf>MCR3Mono</rbf>
+        <rom index="1">
+                <part>2</part>
+        </rom>
+        <switches default="FF">
+                <dip bits="1,2"  name="Coinage" ids="1C_1C,1C_2C,2C_1C,1C_1C" />
+                <dip bits="5,6"    name="Difficulty" ids="Hardest,Hard,Easy,Factory"/>
+                <dip bits="7"    name="Demo Sounds" ids="On,Off"/>
+                <dip bits="8"    name="Rack Advance (cheat)" ids="On,Off"/>
+        </switches>
+	<rom index="0" zip="powerdrv.zip" amd5="7300967c61a0f1b887c12f3989e500bb" type="merged|nonmerged">
+		<part crc="" name="pdrv3b.bin"/>
+		<part crc="" name="pdrv5b.bin"/>
+		<part crc="" name="pdrv8e.bin"/>
+		<part crc="" name="pdrv6e.bin"/>
+		<part crc="" name="pdrv5e.bin"/>
+		<part crc="" name="pdrv4e.bin"/>
+		<part crc="" name="pdrv15a.bin"/>
+		<part crc="" name="pdrv14b.bin"/>
+		<part crc="" name="power_drive_snd_u17.u17"/>
+		<part crc="" name="power_drive_snd_u18.u18"/>
+		<part crc="" name="power_drive_snd_u7.u7"/>
+		<part crc="" name="power_drive_snd_u8.u8"/>
+	</rom>
+</misterromdescription>

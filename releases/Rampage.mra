@@ -1,0 +1,33 @@
+<misterromdescription>
+	<name>Rampage</name>
+	<mameversion>0216</mameversion>
+	<mratimestamp>201912310000</mratimestamp>
+	<year>1983</year>
+	<manufacturer>Bally Midway</manufacturer>
+	<category>Action</category>
+	<rbf>MCR3Mono</rbf>
+        <rom index="1">
+                <part>0</part>
+        </rom>
+        <switches default="FF">
+                <dip bits="1,2"    name="Difficulty" ids="Free Play,Hard,Easy,Normal"/>
+                <dip bits="3"    name="Scor Opt" ids="Lose,Keep"/>
+                <dip bits="4"    name="Coin A" ids="2C_1C,1C_1C"/>
+		<dip bits="5,7"  name="Coin B" ids="3C_1C,2C_1C,1C_6C,1C_5C,1C_4C,1C_3C,1C_2C,1C_1C" />
+                <dip bits="8"    name="Rack Advance (cheat)" ids="On,Off"/>
+        </switches>
+	<rom index="0" zip="rampage.zip" amd5="7300967c61a0f1b887c12f3989e500bb" type="merged|nonmerged">
+		<part crc="" name="pro-0_3b_rev_3_8-27-86.3b"/>
+		<part crc="" name="pro-1_5b_rev_3_8-27-86.5b"/>
+		<part crc="" name="fg-0_8e_6-30-86.8e"/>
+		<part crc="" name="fg-1_6e_6-30-86.6e"/>
+		<part crc="" name="fg-2_5e_6-30-86.5e"/>
+		<part crc="" name="fg-3_4e_6-30-86.4e"/>
+		<part crc="" name="bg-0_u15_7-23-86.15a"/>
+		<part crc="" name="bg-1_u14_7-23-86.14b"/>
+		<part crc="" name="u-17_rev.2_8-14-86.u17"/>
+		<part crc="" name="u-18_rev.2_8-14-86.u18"/>
+		<part crc="" name="u-7_rev.2_8-14-86.u7"/>
+		<part crc="" name="u-8_rev.2_8-14-86.u8"/>
+	</rom>
+</misterromdescription>

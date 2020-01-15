@@ -1,0 +1,28 @@
+<misterromdescription>
+	<name>Sarge</name>
+	<mameversion>0216</mameversion>
+	<mratimestamp>201912310000</mratimestamp>
+	<year>1983</year>
+	<manufacturer>Bally Midway</manufacturer>
+	<category>Action</category>
+	<rbf>MCR3Mono</rbf>
+        <rom index="1">
+                <part>3</part>
+        </rom>
+        <switches default="FF">
+                <dip bits="4"    name="Free Play" ids="On,Off"/>
+                <dip bits="5,6"  name="Coinage" ids="1C_1C,1C_2C,2C_1C,1C_1C" />
+        </switches>
+	<rom index="0" zip="maxrpm.zip" amd5="7300967c61a0f1b887c12f3989e500bb" type="merged|nonmerged">
+		<part crc="" name="pro.0"/>
+		<part crc="" name="pro.1"/>
+		<part crc="" name="fg-0"/>
+		<part crc="" name="fg-1"/>
+		<part crc="" name="fg-2"/>
+		<part crc="" name="fg-3"/>
+		<part crc="" name="bg-0"/>
+		<part crc="" name="bg-1"/>
+		<part crc="" name="turbskwk.u5"/>
+		<part crc="" name="turbskwk.u4"/>
+	</rom>
+</misterromdescription>
