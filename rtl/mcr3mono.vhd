@@ -706,10 +706,7 @@ end process;
 -- mux char/sprite video --
 ---------------------------
 palette_we <= '1' when cpu_mreq_n = '0' and cpu_wr_n = '0' and cpu_addr(15 downto 10) = x"E"&"11" else '0'; -- 0xEC00-EFFF
-
-palette_addr <= cpu_addr(6 downto 1) when palette_we = '1'                    else 
-                bg_palette_addr      when sp_palette_addr(2 downto 0) = "000" else
-                sp_palette_addr;
+palette_addr <= bg_palette_addr when sp_palette_addr(2 downto 0) = "000" else sp_palette_addr;
 
 process (clock_vid)
 begin
@@ -898,15 +895,18 @@ port map(
 bg_graphics_2_we <= '1' when dl_addr(18 downto 14) = "00001" and dl_wr = '1' else '0'; -- 4000-7FFF
 
 -- background & sprite palette
-palette : entity work.gen_ram
+palette : entity work.dpram
 generic map( dWidth => 9, aWidth => 6)
 port map(
- clk  => clock_vidn,
- we   => palette_we,
- addr => palette_addr,
- d    => cpu_addr(0) & cpu_do,
- q    => palette_do
-);
+ clk_a  => clock_vidn,
+ we_a   => palette_we,
+ addr_a => cpu_addr(6 downto 1),
+ d_a    => cpu_addr(0) & cpu_do,
+
+ clk_b  => clock_vidn,
+ addr_b => palette_addr,
+ q_b    => palette_do
+); 
 
 -- Turbo Cheap Squeak
 tcs: entity work.turbo_cheap_squeak

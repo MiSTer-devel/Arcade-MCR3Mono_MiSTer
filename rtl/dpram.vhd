@@ -52,6 +52,8 @@ architecture rtl of dpram is
 	subtype addressRange is integer range 0 to ((2**aWidth)-1);
 	type ramDef is array(addressRange) of std_logic_vector((dWidth-1) downto 0);
 	signal ram: ramDef;
+	ATTRIBUTE ramstyle : string;
+	ATTRIBUTE ramstyle OF ram : SIGNAL IS "no_rw_check";
 	signal addr_a_reg: std_logic_vector((aWidth-1) downto 0);
 	signal addr_b_reg: std_logic_vector((aWidth-1) downto 0);
 begin
@@ -62,8 +64,10 @@ begin
 		if rising_edge(clk_a) then
 			if we_a = '1' then
 				ram(to_integer(unsigned(addr_a))) <= d_a;
+				q_a <= d_a;
+			else
+				q_a <= ram(to_integer(unsigned(addr_a)));
 			end if;
-			q_a <= ram(to_integer(unsigned(addr_a)));
 		end if;
 	end process;
 
@@ -72,8 +76,10 @@ begin
 		if rising_edge(clk_b) then
 			if we_b = '1' then
 				ram(to_integer(unsigned(addr_b))) <= d_b;
+				q_b <= d_b;
+			else
+				q_b <= ram(to_integer(unsigned(addr_b)));
 			end if;
-			q_b <= ram(to_integer(unsigned(addr_b)));
 		end if;
 	end process;
 	

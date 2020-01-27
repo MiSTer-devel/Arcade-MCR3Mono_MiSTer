@@ -114,10 +114,13 @@ localparam CONF_STR = {
 	"H0O1,Aspect Ratio,Original,Wide;",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
-	"H1O6,Control,Mode 1,Mode 2;",
-	"H1-;",
-	//"H2O6,Control,Digital,Analog;",
-	//"H2-;",
+	"h1O6,Control,Mode 1,Mode 2;",
+	"h1-;",
+	"h2O6,Control 1P,Buttons,Spinner;",
+	"h2O7,Control 2P,Buttons,Spinner;",
+	"h2O8,Control 3P,Buttons,Spinner;",
+	"h2O9,Control 4P,Buttons,Spinner;",
+	"h2-;",
 	"DIP;",
 	"-;",
 	"R0,Reset;",
@@ -171,7 +174,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask({~mod_demderby, ~mod_sarge, direct_video}),
+	.status_menumask({mod_demderby, mod_sarge, direct_video}),
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
@@ -346,19 +349,10 @@ end
 
 wire [5:0] wh1, wh2, wh3, wh4;
 always @(posedge clk_sys) begin
-/*
-	if(status[6]) begin
-		wh1 <= {~joy1a[7], joy1a[6:2]};
-		wh2 <= {~joy2a[7], joy2a[6:2]};
-		wh3 <= {~joy3a[7], joy3a[6:2]};
-		wh4 <= {~joy4a[7], joy4a[6:2]};
-	end
-	else*/ begin
-		wh1 <= wheel1[6:1];
-		wh2 <= wheel2[6:1];
-		wh3 <= wheel3[6:1];
-		wh4 <= wheel4[6:1];
-	end
+	wh1 <= wheel1[6:1];
+	wh2 <= wheel2[6:1];
+	wh3 <= wheel3[6:1];
+	wh4 <= wheel4[6:1];
 end
 
 // Game specific sound board/DIP/input settings
@@ -656,6 +650,7 @@ spinner emu_w1 (
 	.btn_left(m_left1),
 	.btn_right(m_right1),
 	.ctc_zc_to_2(VSync),
+	.use_spinner(status[6]),
 	.spin_angle(wheel1)
 );
 
@@ -667,6 +662,7 @@ spinner emu_w2 (
 	.btn_left(m_left2),
 	.btn_right(m_right2),
 	.ctc_zc_to_2(VSync),
+	.use_spinner(status[7]),
 	.spin_angle(wheel2)
 );
 
@@ -678,6 +674,7 @@ spinner emu_w3 (
 	.btn_left(m_left3),
 	.btn_right(m_right3),
 	.ctc_zc_to_2(VSync),
+	.use_spinner(status[8]),
 	.spin_angle(wheel3)
 );
 
@@ -689,6 +686,7 @@ spinner emu_w4 (
 	.btn_left(m_left4),
 	.btn_right(m_right4),
 	.ctc_zc_to_2(VSync),
+	.use_spinner(status[9]),
 	.spin_angle(wheel4)
 );
 
