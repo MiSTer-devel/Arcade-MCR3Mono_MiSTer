@@ -1,30 +1,30 @@
 <misterromdescription>
-	<name>MaxRPM</name>
-	<mameversion>0216</mameversion>
-	<mratimestamp>201912310000</mratimestamp>
-	<year>1983</year>
+	<name>Max RPM (ver 2)</name>
+	<mameversion>0217</mameversion>
+	<mratimestamp>20200202</mratimestamp>
+	<year>1986</year>
 	<manufacturer>Bally Midway</manufacturer>
 	<category>Action</category>
 	<rbf>MCR3Mono</rbf>
 	<setname>maxrpm</setname>
-	<switches default="FF 00">
-		<dip bits="3"    name="Free Play" ids="On,Off"/>
-		<dip bits="4,5"  name="Coinage" ids="1c/2cr,2c/1cr,1c/1cr" values="1,2,3"/>
-		<dip bits="8"    name="Service" ids="Off,On"/>
+	<switches default="FF,00">
+		<dip bits="3" name="Free Play" ids="On,Off"/>
+		<dip bits="4,5" name="Coinage" ids="1c/2cr,2c/1cr,1c/1cr" values="1,2,3"/>
+		<dip bits="8" name="Service" ids="Off,On"/>
 	</switches>
 	<rom index="1">
 		<part>3</part>
 	</rom>
-	<rom index="0" zip="maxrpm.zip" amd5="7300967c61a0f1b887c12f3989e500bb" type="merged|nonmerged">
-		<part crc="" name="pro.0"/>
-		<part crc="" name="pro.1"/>
-		<part crc="" name="fg-0"/>
-		<part crc="" name="fg-1"/>
-		<part crc="" name="fg-2"/>
-		<part crc="" name="fg-3"/>
-		<part crc="" name="bg-0"/>
-		<part crc="" name="bg-1"/>
-		<part crc="" name="turbskwk.u5"/>
-		<part crc="" name="turbskwk.u4"/>
+	<rom index="0" zip="maxrpm.zip" md5="1caa2390c2cbf169c5dbe29d6d79e7e7" type="merged|nonmerged">
+		<part crc="3f9ec35f" name="pro.0"/>
+		<part crc="f628bb30" name="pro.1"/>
+		<part crc="1d1435c1" name="fg-0"/>
+		<part crc="e54b7f2a" name="fg-1"/>
+		<part crc="38be8505" name="fg-2"/>
+		<part crc="9ae3eb52" name="fg-3"/>
+		<part crc="e3fb693a" name="bg-0"/>
+		<part crc="50d1db6c" name="bg-1"/>
+		<part crc="31a2da2e" name="turbskwk.u5"/>
+		<part crc="55c3b759" name="turbskwk.u4"/>
 	</rom>
 </misterromdescription>
