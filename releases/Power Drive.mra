@@ -1,34 +1,34 @@
 <misterromdescription>
-	<name>PowerDrive</name>
-	<mameversion>0216</mameversion>
-	<mratimestamp>201912310000</mratimestamp>
-	<year>1983</year>
+	<name>Power Drive</name>
+	<mameversion>0217</mameversion>
+	<mratimestamp>20200202</mratimestamp>
+	<year>1986</year>
 	<manufacturer>Bally Midway</manufacturer>
 	<category>Action</category>
 	<rbf>MCR3Mono</rbf>
 	<setname>powerdrv</setname>
-	<switches default="FF 00">
-		<dip bits="0,1"  name="Coinage" ids="1c/2cr,2c/1cr,1c/1cr" values="1,2,3"/>
-		<dip bits="4,5"  name="Difficulty" ids="Hardest,Hard,Easy,Factory"/>
-		<dip bits="6"    name="Demo Sounds" ids="On,Off"/>
-		<dip bits="7"    name="Rack Advance (cheat)" ids="On,Off"/>
-		<dip bits="8"    name="Service" ids="Off,On"/>
+	<switches default="FF,00">
+		<dip bits="0,1" name="Coinage" ids="1c/2cr,2c/1cr,1c/1cr" values="1,2,3"/>
+		<dip bits="4,5" name="Difficulty" ids="Hardest,Hard,Easy,Factory"/>
+		<dip bits="6" name="Demo Sounds" ids="On,Off"/>
+		<dip bits="7" name="Rack Advance (cheat)" ids="On,Off"/>
+		<dip bits="8" name="Service" ids="Off,On"/>
 	</switches>
 	<rom index="1">
 		<part>2</part>
 	</rom>
-	<rom index="0" zip="powerdrv.zip" amd5="7300967c61a0f1b887c12f3989e500bb" type="merged|nonmerged">
-		<part crc="" name="pdrv3b.bin"/>
-		<part crc="" name="pdrv5b.bin"/>
-		<part crc="" name="pdrv8e.bin"/>
-		<part crc="" name="pdrv6e.bin"/>
-		<part crc="" name="pdrv5e.bin"/>
-		<part crc="" name="pdrv4e.bin"/>
-		<part crc="" name="pdrv15a.bin"/>
-		<part crc="" name="pdrv14b.bin"/>
-		<part crc="" name="power_drive_snd_u17.u17"/>
-		<part crc="" name="power_drive_snd_u18.u18"/>
-		<part crc="" name="power_drive_snd_u7.u7"/>
-		<part crc="" name="power_drive_snd_u8.u8"/>
+	<rom index="0" zip="powerdrv.zip" md5="0300242430d958ef5fdce41bc5c1e722" type="merged|nonmerged">
+		<part crc="d870b704" name="pdrv3b.bin"/>
+		<part crc="fa0544ad" name="pdrv5b.bin"/>
+		<part crc="dd3a2adc" name="pdrv8e.bin"/>
+		<part crc="1a1f7f81" name="pdrv6e.bin"/>
+		<part crc="4cb4780e" name="pdrv5e.bin"/>
+		<part crc="de400335" name="pdrv4e.bin"/>
+		<part crc="b858b5a8" name="pdrv15a.bin"/>
+		<part crc="12ee7fc2" name="pdrv14b.bin"/>
+		<part crc="c41de6e4" name="power_drive_snd_u17.u17"/>
+		<part crc="cae14c70" name="power_drive_snd_u18.u18"/>
+		<part crc="78713e78" name="power_drive_snd_u7.u7"/>
+		<part crc="15714036" name="power_drive_snd_u8.u8"/>
 	</rom>
 </misterromdescription>
