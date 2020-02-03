@@ -12,8 +12,9 @@
 		<dip bits="4,5" name="Coinage" ids="1c/2cr,2c/1cr,1c/1cr" values="1,2,3"/>
 		<dip bits="8" name="Service" ids="Off,On"/>
 	</switches>
+	<buttons names="Gear Up,Gear Down,-,-,Start,Coin" default="X,B,Start,R"/>
 	<rom index="1">
-		<part>3</part>
+		<part>03</part>
 	</rom>
 	<rom index="0" zip="maxrpm.zip" md5="1caa2390c2cbf169c5dbe29d6d79e7e7" type="merged|nonmerged">
 		<part crc="3f9ec35f" name="pro.0"/>

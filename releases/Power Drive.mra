@@ -14,8 +14,9 @@
 		<dip bits="7" name="Rack Advance (cheat)" ids="On,Off"/>
 		<dip bits="8" name="Service" ids="Off,On"/>
 	</switches>
+	<buttons names="Front Wheels,Back Wheels,Wheelie,4WD/2WD,-,Coin" default="R,L,B,A,Start"/>
 	<rom index="1">
-		<part>2</part>
+		<part>02</part>
 	</rom>
 	<rom index="0" zip="powerdrv.zip" md5="0300242430d958ef5fdce41bc5c1e722" type="merged|nonmerged">
 		<part crc="d870b704" name="pdrv3b.bin"/>

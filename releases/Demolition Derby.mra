@@ -15,8 +15,9 @@
 		<dip bits="4,5"  name="Coinage" ids="2c/2cr,1c/2cr,2c/1cr,1c/1cr"/>
 		<dip bits="8"    name="Service" ids="Off,On"/>
 	</switches>
+	<buttons names="Forward,Reverse,-,-,Start,Coin" default="X,B,Start,R"/>
 	<rom index="1">
-		<part>4</part>
+		<part>04</part>
 	</rom>
 	<rom index="0" zip="demoderb.zip" md5="0063f035348ccdbf21c2566cb4893498" type="merged|nonmerged">
 		<part crc="2e24527b" name="pro0.3b"/>
