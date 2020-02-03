@@ -19,7 +19,7 @@
 	<rom index="1">
 		<part>04</part>
 	</rom>
-	<rom index="0" zip="demoderb.zip" md5="0063f035348ccdbf21c2566cb4893498" type="merged|nonmerged">
+	<rom index="0" zip="demoderb.zip|demoderm.zip" md5="0063f035348ccdbf21c2566cb4893498" type="merged|nonmerged">
 		<part crc="2e24527b" name="pro0.3b"/>
 		<part crc="034c00fc" name="pro1.5b"/>
 		<part crc="e57a4de6" name="dd_fg-0.a4"/>
