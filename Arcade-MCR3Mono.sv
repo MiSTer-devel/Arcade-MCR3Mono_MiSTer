@@ -367,8 +367,8 @@ always @(*) begin
 
 	if (mod_sarge) begin
 		input0 = ~{2'b00, sw[1][0], 1'b0, m_start2, m_start1, m_coin2, m_coin1};
-		input1 = ~{s_f1b, s_f1b, s_f1a, s_f1a, s_rd1, s_ru1, s_ld1, s_lu1};
-		input2 = ~{s_f2b, s_f2b, s_f2a, s_f2a, s_rd2, s_ru2, s_ld2, s_lu2};
+		input1 = ~{m_fire1d, m_fire1d, m_fire1a, m_fire1a, s_rd1, s_ru1, s_ld1, s_lu1};
+		input2 = ~{m_fire2d, m_fire2d, m_fire2a, m_fire2a, s_rd2, s_ru2, s_ld2, s_lu2};
 	end
 	else if (mod_demderby) begin
 		input0 = ~{2'b00, sw[1][0], 1'b0, m_start2, m_start1, m_coin2, m_coin1};
@@ -400,9 +400,9 @@ wire s_lu1, s_ld1, s_ru1, s_rd1, s_f1a, s_f1b;
 twosticks twosticks1
 (
 	status[6],
-	m_left1, m_right1, m_up1, m_down1,
-	m_fire1a, m_fire1b, m_fire1c, m_fire1d,
-	s_lu1, s_ld1, s_ru1, s_rd1, s_f1a, s_f1b
+	m_left1,  m_right1, m_up1, m_down1,
+	m_fire1b, m_fire1c,
+	s_lu1, s_ld1, s_ru1, s_rd1
 );
 
 wire s_lu2, s_ld2, s_ru2, s_rd2, s_f2a, s_f2b;
@@ -410,8 +410,8 @@ twosticks twosticks2
 (
 	status[6],
 	m_left2, m_right2, m_up2, m_down2,
-	m_fire2a, m_fire2b, m_fire2c, m_fire2d,
-	s_lu2, s_ld2, s_ru2, s_rd2, s_f2a, s_f2b
+	m_fire2b, m_fire2c,
+	s_lu2, s_ld2, s_ru2, s_rd2
 );
 
 wire rom_download = ioctl_download && !ioctl_index;
@@ -696,17 +696,14 @@ module twosticks
 (
 	input mode,
 	input l,r,u,d,
-	input ba,bb,bc,bd,
-	
-	output lu,ld,ru,rd,
-	output f1,f2
+	input bb,bc,
+
+	output lu,ld,ru,rd
 );
 
 assign lu = mode ? (u | r) : u;
 assign ld = mode ? (d | l) : d;
 assign ru = mode ? (u | l) : bc;
 assign rd = mode ? (d | r) : bb;
-assign f1 = ba;
-assign f2 = mode ? bb : bd;
 
 endmodule
