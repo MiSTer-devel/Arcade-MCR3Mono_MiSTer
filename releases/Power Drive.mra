@@ -14,7 +14,7 @@
 		<dip bits="7" name="Rack Advance (cheat)" ids="On,Off"/>
 		<dip bits="8" name="Service" ids="Off,On"/>
 	</switches>
-	<buttons names="Front Wheels,Back Wheels,Wheelie,4WD/2WD,-,Coin" default="R,L,B,A,Start"/>
+	<buttons names="Left Wheel,Right Wheel,Wheelie,4WD/2WD,-,Coin" default="L,R,B,A,Start"/>
 	<rom index="1">
 		<part>02</part>
 	</rom>
