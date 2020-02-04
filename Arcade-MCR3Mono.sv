@@ -121,6 +121,11 @@ localparam CONF_STR = {
 	"h2O8,Control 3P,Buttons,Spinner;",
 	"h2O9,Control 4P,Buttons,Spinner;",
 	"h2-;",
+	"h3O6,Gas 1P,Buttons,Analog Y;",
+	"h3O7,Steering 1P,Buttons,Analog X;",
+	"h3O8,Gas 2P,Buttons,Analog Y;",
+	"h3O9,Steering 2P,Buttons,Analog X;",
+	"h3-;",
 	"DIP;",
 	"-;",
 	"R0,Reset;",
@@ -174,7 +179,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask({mod_demderby, mod_sarge, direct_video}),
+	.status_menumask({mod_maxrpm, mod_demderby, mod_sarge, direct_video}),
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
@@ -378,7 +383,7 @@ always @(*) begin
 	end
 	else if (mod_maxrpm) begin
 		input0 = ~{sw[1][0], 3'b000, m_start1, m_start2, m_coin1, m_coin2};
-		input1 =  {pedal1[5:2], pedal2[5:2]};
+		input1 = maxrpm_adc_data;
 		input2 = ~{maxrpm_gear1, maxrpm_gear2};
 	end
 	else if (mod_rampage) begin
@@ -604,6 +609,26 @@ always @(posedge clk_sys) begin
 	end
 end
 
+//Pedals/Steering for Max RPM
+reg [7:0] maxrpm_adc_data;
+reg [3:0] maxrpm_adc_control;
+always @(*) begin
+	case (maxrpm_adc_control[1:0])
+		2'b00: maxrpm_adc_data = status[8] ? gas2a : gas2;
+		2'b01: maxrpm_adc_data = status[6] ? gas1a : gas1;
+		2'b10: maxrpm_adc_data = status[9] ? steering2a : steering2;
+		2'b11: maxrpm_adc_data = status[7] ? steering1a : steering1;
+	endcase
+end
+
+always @(posedge clk_sys) if (~output6[6] & ~output6[5]) maxrpm_adc_control <= output5[4:1];
+
+wire [7:0] gas1a = joy1a[15] ? {joy1a[14:8],1'b1} : 8'hFF;
+wire [7:0] gas2a = joy2a[15] ? {joy2a[14:8],1'b1} : 8'hFF;
+
+wire [7:0] steering1a = 8'h74 - {joy1a[7],joy1a[7:1]};
+wire [7:0] steering2a = 8'h74 + {joy2a[7],joy2a[7:1]};
+
 // Power Drive gear
 reg  [2:0] powerdrv_gear;
 always @(posedge clk_sys) begin
@@ -618,27 +643,32 @@ always @(posedge clk_sys) begin
 	end
 end
 
-//Pedals for Max RPM
-wire [5:0] pedal1;
-spinner spinner1 (
+wire [7:0] gas1;
+wire [7:0] steering1;
+spy_hunter_control maxrpm_pl1 (
 	.clock_40(clk_sys),
 	.reset(reset),
-	.btn_acc(),
-	.btn_left(m_up1),
-	.btn_right(m_down1),
-	.ctc_zc_to_2(VSync),
-	.spin_angle(pedal1)
+	.vsync(VSync),
+	.gas_plus(m_up1),
+	.gas_minus(m_down1),
+	.steering_minus(m_right1),
+	.steering_plus(m_left1),
+	.steering(steering1),
+	.gas(gas1)
 );
 
-wire [5:0] pedal2;
-spinner spinner2 (
+wire [7:0] gas2;
+wire [7:0] steering2;
+spy_hunter_control maxrpm_pl2 (
 	.clock_40(clk_sys),
 	.reset(reset),
-	.btn_acc(),
-	.btn_left(m_up2),
-	.btn_right(m_down2),
-	.ctc_zc_to_2(VSync),
-	.spin_angle(pedal2)
+	.vsync(VSync),
+	.gas_plus(m_up2),
+	.gas_minus(m_down2),
+	.steering_plus(m_right2),
+	.steering_minus(m_left2),
+	.steering(steering2),
+	.gas(gas2)
 );
 
 
