@@ -1,6 +1,6 @@
 # Midway MCR Monoboard port for MiSTer
 
-[Original readme](README_orig.txt) (mostly irrelevant to MiSTer)
+[Original readme](readme_orig.txt) (mostly irrelevant to MiSTer)
 
 # Keyboard inputs :
 ```
@@ -66,7 +66,7 @@ Find this zip file somewhere. You need to find the file exactly as required.
 Do not rename other zip files even if they also represent the same game - they are not compatible!
 The name of zip is taken from M.A.M.E. project, so you can get more info about
 hashes and contained files there.
-Put rom on your SD card. Example directory : _Arcade/Mame/
+Put rom on your SD card. Example directory : _Arcade/mame/
 
 ```
 
