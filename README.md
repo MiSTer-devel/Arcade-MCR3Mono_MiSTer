@@ -19,13 +19,13 @@
      6           : Coin 2
      1           : Start 1 Player
      2           : Start 2 Player
-	 R,F,D,G     : Player 2
-	 A   : Fire2 A
-	 S   : Fire2 B 
-	 Q   : Fire2 C
-	 W   : Fire2 D
-	 I   : Fire2 E
-	 K   : Fire2 F
+     R,F,D,G     : Player 2
+     A           : Fire2 A
+     S           : Fire2 B 
+     Q           : Fire2 C
+     W           : Fire2 D
+     I           : Fire2 E
+     K           : Fire2 F
 	
  Joystick support. 
 ```
