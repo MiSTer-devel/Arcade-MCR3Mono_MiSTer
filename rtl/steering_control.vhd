@@ -3,22 +3,32 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 
-entity spy_hunter_control is
+entity steering_control is
+generic (
+	steering_min   : std_logic_vector(7 downto 0) := x"34";
+	steering_max   : std_logic_vector(7 downto 0) := x"B4";
+	steering_mid   : std_logic_vector(7 downto 0) := x"74";
+	steering_step  : std_logic_vector(7 downto 0) := x"08";
+	gas_min        : std_logic_vector(8 downto 0) := '0'&x"30";
+	gas_max        : std_logic_vector(8 downto 0) := '0'&x"FF";
+	gas_step       : std_logic_vector(8 downto 0) := '0'&x"08";
+	gas_reverse    : std_logic := '0'
+);
 port(
-	clock_40     	: in  std_logic;
-	reset        	: in  std_logic;
-	vsync 			: in  std_logic;
+	clk            : in  std_logic;
+	reset          : in  std_logic;
+	vsync          : in  std_logic;
 
-	gas_plus     	: in  std_logic;
+	gas_plus       : in  std_logic;
 	gas_minus      : in  std_logic;
 	steering_plus  : in  std_logic;
 	steering_minus : in  std_logic;
 	steering       : out std_logic_vector(7 downto 0);
 	gas            : out std_logic_vector(7 downto 0)
 );
-end spy_hunter_control;
+end steering_control;
 
-architecture struct of spy_hunter_control is
+architecture struct of steering_control is
 	signal steering_r       : std_logic_vector(7 downto 0);
 	signal steering_next    : std_logic_vector(7 downto 0);
 	signal steering_plus_r  : std_logic;
@@ -32,16 +42,6 @@ architecture struct of spy_hunter_control is
 	signal gas_timer        : std_logic_vector(5 downto 0);
 
 	signal vsync_r          : std_logic;
-
-	constant steering_min   : std_logic_vector(7 downto 0) := x"34";
-	constant steering_max   : std_logic_vector(7 downto 0) := x"B4";
-	constant steering_mid   : std_logic_vector(7 downto 0) := x"74";
-	constant steering_step  : std_logic_vector(7 downto 0) := x"08";
-
-	constant gas_min        : std_logic_vector(8 downto 0) := '0'&x"30";
-	constant gas_max        : std_logic_vector(8 downto 0) := '0'&x"FF";
-	constant gas_step       : std_logic_vector(8 downto 0) := '0'&x"08";
-
 begin
 
 -- absolute position decoder simulation
@@ -83,19 +83,27 @@ begin
 
 
 gas <= gas_r(7 downto 0);
-gas_next <= gas_r - gas_step when gas_plus = '1' else gas_r + gas_step;
+gas_next <= gas_r - gas_step when gas_plus  = '1' and gas_reverse = '1' else
+            gas_r + gas_step when gas_minus = '1' and gas_reverse = '1' else
+            gas_r + gas_step when gas_plus  = '1' and gas_reverse = '0' else
+            gas_r - gas_step when gas_minus = '1' and gas_reverse = '0' else
+            gas_r;
 
 steering <= steering_r;
 steering_next <= steering_r + steering_step when steering_plus = '1' else steering_r - steering_step;
 
-process (clock_40, reset)
+process (clk, reset)
 begin
 	if reset = '1' then
-		gas_r <= gas_max;
+		if gas_reverse = '1' then
+			gas_r <= gas_max;
+		else
+			gas_r <= gas_min;
+		end if;
 		steering_r <= steering_mid;
 	else
 
-		if rising_edge(clock_40) then
+		if rising_edge(clk) then
 			gas_plus_r       <= gas_plus;
 			gas_minus_r      <= gas_minus;
 			steering_plus_r  <= steering_plus;
@@ -117,10 +125,11 @@ begin
 			end if;
 
 			if vsync_r ='0' and vsync = '1' and gas_timer = 0 then	
-				if gas_plus = '1' then
-					if gas_next < gas_min then gas_r <= gas_min; else gas_r <= gas_next; end if;
-				elsif gas_minus = '1' then
-					if gas_next > gas_max then gas_r <= gas_max; else gas_r <= gas_next; end if;
+				gas_r <= gas_next;
+				if gas_next < gas_min then
+					gas_r <= gas_min;
+				elsif gas_next > gas_max then
+					gas_r <= gas_max;
 				end if;
 			end if;
 

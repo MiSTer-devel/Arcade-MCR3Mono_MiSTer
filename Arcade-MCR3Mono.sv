@@ -352,14 +352,6 @@ always @(posedge clk_sys) begin
 	if(output6[6]) inp_mux <= 1;
 end
 
-wire [5:0] wh1, wh2, wh3, wh4;
-always @(posedge clk_sys) begin
-	wh1 <= wheel1[6:1];
-	wh2 <= wheel2[6:1];
-	wh3 <= wheel3[6:1];
-	wh4 <= wheel4[6:1];
-end
-
 // Game specific sound board/DIP/input settings
 always @(*) begin
 	sg = ~(mod_sarge | mod_maxrpm | mod_demderby);
@@ -377,8 +369,8 @@ always @(*) begin
 	end
 	else if (mod_demderby) begin
 		input0 = ~{2'b00, sw[1][0], 1'b0, m_start2, m_start1, m_coin2, m_coin1};
-		input1 = ~{inp_mux ? wh3 : wh1, m_fire1b, m_fire1a};
-		input2 = ~{inp_mux ? wh4 : wh2, m_fire2b, m_fire2a};
+		input1 = ~{inp_mux ? ddwh3 : ddwh1, m_fire1b, m_fire1a};
+		input2 = ~{inp_mux ? ddwh4 : ddwh2, m_fire2b, m_fire2a};
 		input4 = ~{m_fire4b, m_fire4a, m_fire3b, m_fire3a, m_start4, m_start3, m_coin4, m_coin3};
 	end
 	else if (mod_maxrpm) begin
@@ -400,24 +392,6 @@ always @(*) begin
 		input2 = ~{sndstat[0], 3'b000, m_fire3b, m_fire3a, powerdrv_gear[2], m_fire3c};
 	end
 end
-
-wire s_lu1, s_ld1, s_ru1, s_rd1, s_f1a, s_f1b;
-twosticks twosticks1
-(
-	status[6],
-	m_left1,  m_right1, m_up1, m_down1,
-	m_fire1b, m_fire1c,
-	s_lu1, s_ld1, s_ru1, s_rd1
-);
-
-wire s_lu2, s_ld2, s_ru2, s_rd2, s_f2a, s_f2b;
-twosticks twosticks2
-(
-	status[6],
-	m_left2, m_right2, m_up2, m_down2,
-	m_fire2b, m_fire2c,
-	s_lu2, s_ld2, s_ru2, s_rd2
-);
 
 wire rom_download = ioctl_download && !ioctl_index;
 
@@ -471,6 +445,8 @@ sdram sdram(
 	.cpu1_q        ( snd_do ),
 	.cpu2_addr     ( rom_download ? 18'h3ffff : {3'b000, rom_addr[15:1]} ),
 	.cpu2_q        ( rom_do ),
+	.cpu3_addr     ( ),
+	.cpu3_q        ( ),
 
 	// port2 for sprite graphics
 	.port2_req     ( port2_req ),
@@ -579,6 +555,41 @@ assign AUDIO_L = { audio, 6'd0 };
 assign AUDIO_R = { audio, 6'd0 };
 assign AUDIO_S = 0;
 
+////////////////////  Game specific controls  /////////////////////////////
+
+// Sarge
+wire s_lu1, s_ld1, s_ru1, s_rd1, s_f1a, s_f1b;
+twosticks twosticks1
+(
+	status[6],
+	m_left1,  m_right1, m_up1, m_down1,
+	m_fire1b, m_fire1c,
+	s_lu1, s_ld1, s_ru1, s_rd1
+);
+
+wire s_lu2, s_ld2, s_ru2, s_rd2, s_f2a, s_f2b;
+twosticks twosticks2
+(
+	status[6],
+	m_left2, m_right2, m_up2, m_down2,
+	m_fire2b, m_fire2c,
+	s_lu2, s_ld2, s_ru2, s_rd2
+);
+
+// Power Drive gear
+reg  [2:0] powerdrv_gear;
+always @(posedge clk_sys) begin
+	reg [2:0] gear_old;
+
+	if (reset) powerdrv_gear <= 0;
+	else begin
+		gear_old <= {m_fire3d, m_fire2d, m_fire1d};
+		if (~gear_old[0] & m_fire1d) powerdrv_gear[0] <= ~powerdrv_gear[0];
+		if (~gear_old[1] & m_fire2d) powerdrv_gear[1] <= ~powerdrv_gear[1];
+		if (~gear_old[2] & m_fire3d) powerdrv_gear[2] <= ~powerdrv_gear[2];
+	end
+end
+
 
 // MaxRPM gearbox
 wire [3:0] maxrpm_gear_bits[5] = '{ 4'h0, 4'h5, 4'h6, 4'h1, 4'h2 };
@@ -609,7 +620,7 @@ always @(posedge clk_sys) begin
 	end
 end
 
-//Pedals/Steering for Max RPM
+//Pedals/Steering
 reg [7:0] maxrpm_adc_data;
 reg [3:0] maxrpm_adc_control;
 always @(*) begin
@@ -629,28 +640,19 @@ wire [7:0] gas2a = joy2a[15] ? {joy2a[14:8],1'b1} : 8'hFF;
 wire [7:0] steering1a = 8'h74 - {joy1a[7],joy1a[7:1]};
 wire [7:0] steering2a = 8'h74 + {joy2a[7],joy2a[7:1]};
 
-// Power Drive gear
-reg  [2:0] powerdrv_gear;
-always @(posedge clk_sys) begin
-	reg [2:0] gear_old;
-
-	if (reset) powerdrv_gear <= 0;
-	else begin
-		gear_old <= {m_fire3d, m_fire2d, m_fire1d};
-		if (~gear_old[0] & m_fire1d) powerdrv_gear[0] <= ~powerdrv_gear[0];
-		if (~gear_old[1] & m_fire2d) powerdrv_gear[1] <= ~powerdrv_gear[1];
-		if (~gear_old[2] & m_fire3d) powerdrv_gear[2] <= ~powerdrv_gear[2];
-	end
-end
-
 wire [7:0] gas1;
 wire [7:0] steering1;
-spy_hunter_control maxrpm_pl1 (
-	.clock_40(clk_sys),
+steering_control
+#(
+	.gas_reverse(1'b1)
+)
+maxrpm_pl1
+(
+	.clk(clk_sys),
 	.reset(reset),
 	.vsync(VSync),
 	.gas_plus(m_up1),
-	.gas_minus(m_down1),
+	.gas_minus(~m_up1),
 	.steering_minus(m_right1),
 	.steering_plus(m_left1),
 	.steering(steering1),
@@ -659,12 +661,17 @@ spy_hunter_control maxrpm_pl1 (
 
 wire [7:0] gas2;
 wire [7:0] steering2;
-spy_hunter_control maxrpm_pl2 (
-	.clock_40(clk_sys),
+steering_control
+#(
+	.gas_reverse(1'b1)
+)
+maxrpm_pl2
+(
+	.clk(clk_sys),
 	.reset(reset),
 	.vsync(VSync),
 	.gas_plus(m_up2),
-	.gas_minus(m_down2),
+	.gas_minus(~m_up2),
 	.steering_plus(m_right2),
 	.steering_minus(m_left2),
 	.steering(steering2),
@@ -672,52 +679,53 @@ spy_hunter_control maxrpm_pl2 (
 );
 
 
-wire [6:0] wheel1;
-spinner emu_w1 (
-	.clock_40(clk_sys),
+// Demolition Derby
+wire [5:0] ddwh1;
+spinner #(10) dd_wheel1
+(
+	.clk(clk_sys),
 	.reset(reset),
-	.btn_acc(0),
-	.btn_left(m_left1),
-	.btn_right(m_right1),
-	.ctc_zc_to_2(VSync),
+	.minus(m_left1),
+	.plus(m_right1),
+	.strobe(VSync),
 	.use_spinner(status[6]),
-	.spin_angle(wheel1)
+	.spin_angle(ddwh1)
 );
 
-wire [6:0] wheel2;
-spinner emu_w2 (
-	.clock_40(clk_sys),
+wire [5:0] ddwh2;
+spinner #(10) dd_wheel2
+(
+	.clk(clk_sys),
 	.reset(reset),
-	.btn_acc(0),
-	.btn_left(m_left2),
-	.btn_right(m_right2),
-	.ctc_zc_to_2(VSync),
+	.minus(m_left2),
+	.plus(m_right2),
+	.strobe(VSync),
 	.use_spinner(status[7]),
-	.spin_angle(wheel2)
+	.spin_angle(ddwh2)
 );
 
-wire [6:0] wheel3;
-spinner emu_w3 (
-	.clock_40(clk_sys),
+wire [5:0] ddwh3;
+spinner #(10) dd_wheel3
+(
+	.clk(clk_sys),
 	.reset(reset),
-	.btn_acc(0),
-	.btn_left(m_left3),
-	.btn_right(m_right3),
-	.ctc_zc_to_2(VSync),
+	.minus(m_left3),
+	.plus(m_right3),
+	.strobe(VSync),
 	.use_spinner(status[8]),
-	.spin_angle(wheel3)
+	.spin_angle(ddwh3)
 );
 
-wire [6:0] wheel4;
-spinner emu_w4 (
-	.clock_40(clk_sys),
+wire [5:0] ddwh4;
+spinner #(10) dd_wheel4
+(
+	.clk(clk_sys),
 	.reset(reset),
-	.btn_acc(0),
-	.btn_left(m_left4),
-	.btn_right(m_right4),
-	.ctc_zc_to_2(VSync),
+	.minus(m_left4),
+	.plus(m_right4),
+	.strobe(VSync),
 	.use_spinner(status[9]),
-	.spin_angle(wheel4)
+	.spin_angle(ddwh4)
 );
 
 endmodule
