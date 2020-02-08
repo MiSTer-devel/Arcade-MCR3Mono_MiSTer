@@ -149,6 +149,8 @@ port(
  snd_stat       : out std_logic_vector(1 downto 0); -- sound board stat output
  audio_out      : out std_logic_vector(9 downto 0);
 
+ mod_stargrds   : in  std_logic;
+
  -- ssio input/outputs
  input_0        :  in std_logic_vector(7 downto 0);
  input_1        :  in std_logic_vector(7 downto 0);
@@ -226,7 +228,7 @@ architecture struct of mcr3mono is
  signal bg_code_r       : std_logic_vector(7 downto 0); 
  signal bg_attr         : std_logic_vector(7 downto 0);
 
- signal bg_code_line    : std_logic_vector(13 downto 0);
+ signal bg_code_line    : std_logic_vector(14 downto 0);
  signal bg_graphx1_do   : std_logic_vector( 7 downto 0);
  signal bg_graphx2_do   : std_logic_vector( 7 downto 0);
  signal bg_palette_addr : std_logic_vector( 5 downto 0);
@@ -301,6 +303,8 @@ architecture struct of mcr3mono is
 
  signal op_5      : std_logic_vector(7 downto 0);
  signal op_6      : std_logic_vector(7 downto 0);
+ signal op_6sg    : std_logic_vector(4 downto 0);
+ signal sg_reset  : std_logic;
 -- signal max_sprite: std_logic_vector(7 downto 0); -- dbg
 -- signal max_sprite_r: std_logic_vector(7 downto 0); -- dbg
 -- signal max_sprite_rr: std_logic_vector(7 downto 0); -- dbg
@@ -476,7 +480,7 @@ cpu_di <= cpu_rom_do        when cpu_mreq_n  = '0' and cpu_addr(15 downto 12) < 
           wram_do           when cpu_mreq_n  = '0' and (cpu_addr and X"F800") = x"E000"   else -- E000-E7FF
           sp_ram_cache_do_r when cpu_mreq_n  = '0' and (cpu_addr and x"FC00") = x"E800"   else -- sprite ram  E800-E9FF + mirroring 0200
           bg_ram_do_r       when cpu_mreq_n  = '0' and (cpu_addr and x"F800") = x"F000"   else -- video ram   F000-F7FF
-          ctc_do           when cpu_int_ack_n = '0' or ctc_ce = '1'                       else -- ctc (interrupt vector or counter data)
+          ctc_do            when cpu_int_ack_n = '0' or ctc_ce = '1'                      else -- ctc (interrupt vector or counter data)
           ssio_do           when cpu_ioreq_n = '0' and cpu_addr(7 downto 5) = "000"       else -- 0x00-0x1F
           X"FF";
 
@@ -628,8 +632,8 @@ sp_vflip <= (others => sp_attr(5));
 
 sp_graphx_do <= sp_graphx32_do_r( 7 downto  0) when (sp_hflip(0) = '0' and sp_mux_roms = "01") or (sp_hflip(0) = '1' and sp_mux_roms = "00") else
                 sp_graphx32_do_r(15 downto  8) when (sp_hflip(0) = '0' and sp_mux_roms = "10") or (sp_hflip(0) = '1' and sp_mux_roms = "11") else
-					      sp_graphx32_do_r(23 downto 16) when (sp_hflip(0) = '0' and sp_mux_roms = "11") or (sp_hflip(0) = '1' and sp_mux_roms = "10") else
-					      sp_graphx32_do_r(31 downto 24);-- when (sp_hflip(0) = '0' and sp_mux_roms = "00") or (sp_hflip(0) = '1' and sp_mux_roms = "01") ;
+                sp_graphx32_do_r(23 downto 16) when (sp_hflip(0) = '0' and sp_mux_roms = "11") or (sp_hflip(0) = '1' and sp_mux_roms = "10") else
+                sp_graphx32_do_r(31 downto 24);-- when (sp_hflip(0) = '0' and sp_mux_roms = "00") or (sp_hflip(0) = '1' and sp_mux_roms = "01") ;
 
 sp_graphx_a <= sp_graphx_do(7 downto 4) when sp_hflip(0) = '1' else sp_graphx_do(3 downto 0);
 sp_graphx_b <= sp_graphx_do(3 downto 0) when sp_hflip(0) = '1' else sp_graphx_do(7 downto 4);
@@ -665,7 +669,7 @@ sp_col <= sp_buffer_ram1_do_r(15 downto 12) when (sp_buffer_sel = '0') and (hfli
 --------------------
 bg_ram_addr <= cpu_addr(10 downto 0) when hcnt(0) = '0' else vflip(8 downto 4) & hflip(8 downto 4) & hcnt(1);
 
-bg_code_line <= bg_attr(1 downto 0) & bg_code_r & (vflip(3 downto 1) xor (bg_attr(3) & bg_attr(3) & bg_attr(3) ) ) & (hflip(3) xor bg_attr(2));
+bg_code_line <= bg_attr(6) & bg_attr(1 downto 0) & bg_code_r & (vflip(3 downto 1) xor (bg_attr(3) & bg_attr(3) & bg_attr(3) ) ) & (hflip(3) xor bg_attr(2));
 
 process (clock_vid)
 begin
@@ -728,18 +732,13 @@ port map(
   RESET_n => reset_n,
   CLK     => clock_vid,
   CEN     => cpu_ena,
-  WAIT_n  => '1',
   INT_n   => cpu_irq_n,
-  NMI_n   => '1', --cpu_nmi_n,
-  BUSRQ_n => '1',
   M1_n    => cpu_m1_n,
   MREQ_n  => cpu_mreq_n,
   IORQ_n  => cpu_ioreq_n,
   RD_n    => cpu_rd_n,
   WR_n    => cpu_wr_n,
   RFSH_n  => cpu_rfsh_n,
-  HALT_n  => open,
-  BUSAK_n => open,
   A       => cpu_addr,
   DI      => cpu_di,
   DO      => cpu_do
@@ -869,30 +868,30 @@ port map(
 );
 
 bg_graphics_1 : entity work.dpram
-generic map( dWidth => 8, aWidth => 14)
+generic map( dWidth => 8, aWidth => 15)
 port map(
  clk_a  => clock_vidn,
- addr_a => bg_code_line(13 downto 0),
+ addr_a => bg_code_line,
  q_a    => bg_graphx1_do,
  clk_b  => clock_vid,
  we_b   => bg_graphics_1_we,
- addr_b => dl_addr(13 downto 0),
+ addr_b => dl_addr(14 downto 0),
  d_b    => dl_data
 );
-bg_graphics_1_we <= '1' when dl_addr(18 downto 14) = "00000" and dl_wr = '1' else '0'; -- 0000-3FFF
+bg_graphics_1_we <= '1' when dl_addr(18 downto 15) = "0000" and dl_wr = '1' else '0'; -- 0000-7FFF
 
 bg_graphics_2 : entity work.dpram
-generic map( dWidth => 8, aWidth => 14)
+generic map( dWidth => 8, aWidth => 15)
 port map(
  clk_a  => clock_vidn,
- addr_a => bg_code_line(13 downto 0),
+ addr_a => bg_code_line,
  q_a    => bg_graphx2_do,
  clk_b  => clock_vid,
  we_b   => bg_graphics_2_we,
- addr_b => dl_addr(13 downto 0),
+ addr_b => dl_addr(14 downto 0),
  d_b    => dl_data
 );
-bg_graphics_2_we <= '1' when dl_addr(18 downto 14) = "00001" and dl_wr = '1' else '0'; -- 4000-7FFF
+bg_graphics_2_we <= '1' when dl_addr(18 downto 15) = "0001" and dl_wr = '1' else '0'; -- 8000-FFFF
 
 -- background & sprite palette
 palette : entity work.dpram
@@ -919,15 +918,18 @@ port map (
  audio_out => tcs_audio
 );
 
+op_6sg <= op_6(4 downto 0) when mod_stargrds = '0' else op_6(3 downto 0) & op_6(7);
+sg_reset <= op_6(5) when mod_stargrds = '0' else op_6(6);
+
 -- Sounds Good
 sg: entity work.sounds_good
 port map (
  clock_40 => clock_40,
  reset => reset,
- sint  => op_6(0),
- sndsel => op_6(4 downto 1),
+ sint  => op_6sg(0),
+ sndsel => op_6sg(4 downto 1),
  stat => snd_stat,
- extreset_n => op_6(5), -- should come from watchdog
+ extreset_n => sg_reset,
  rom_addr => sg_rom_addr,
  rom_do => snd_rom_do,
  audio_out => sg_audio

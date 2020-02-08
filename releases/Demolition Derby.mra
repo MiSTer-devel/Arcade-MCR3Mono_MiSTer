@@ -19,7 +19,7 @@
 	<rom index="1">
 		<part>04</part>
 	</rom>
-	<rom index="0" zip="demoderb.zip|demoderm.zip" md5="0063f035348ccdbf21c2566cb4893498" type="merged|nonmerged">
+	<rom index="0" zip="demoderb.zip|demoderm.zip" md5="aff76437b13ecd375e3c5cb407bec5a9" type="merged|nonmerged">
 		<part crc="2e24527b" name="pro0.3b"/>
 		<part crc="034c00fc" name="pro1.5b"/>
 		<part crc="e57a4de6" name="dd_fg-0.a4"/>
@@ -30,10 +30,8 @@
 		<part crc="abfb9a8b" name="dd_fg-6.a7"/>
 		<part crc="801d9b86" name="dd_fg-3.a10"/>
 		<part crc="0ec3f60a" name="dd_fg-7.a9"/>
-		<part crc="a35d13b8" name="bg0.15a"/>
-		<part crc="a35d13b8" name="bg0.15a"/>
-		<part crc="22ca93f3" name="bg1.14b"/>
-		<part crc="22ca93f3" name="bg1.14b"/>
+		<part crc="a35d13b8" repeat="4" name="bg0.15a"/>
+		<part crc="22ca93f3" repeat="4" name="bg1.14b"/>
 		<part crc="eca33b2c" name="tcs_u5.bin"/>
 		<part crc="3490289a" name="tcs_u4.bin"/>
 		<part crc="eca33b2c" name="tcs_u5.bin"/>

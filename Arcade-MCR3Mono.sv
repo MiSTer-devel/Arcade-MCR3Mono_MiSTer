@@ -126,6 +126,10 @@ localparam CONF_STR = {
 	"h3O8,Gas 2P,Buttons,Analog Y;",
 	"h3O9,Steering 2P,Buttons,Analog X;",
 	"h3-;",
+	"h4O6,Fire 1P,4Way,Fly+Fire;",
+	"h4O7,Fire 2P,4Way,Fly+Fire;",
+	"h4O8,Fire 3P,4Way,Fly+Fire;",
+	"h4-;",
 	"DIP;",
 	"-;",
 	"R0,Reset;",
@@ -179,7 +183,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask({mod_maxrpm, mod_demderby, mod_sarge, direct_video}),
+	.status_menumask({mod_stargrds, mod_maxrpm, mod_demderby, mod_sarge, direct_video}),
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
@@ -208,6 +212,7 @@ reg mod_sarge      = 0;
 reg mod_powerdrive = 0;
 reg mod_maxrpm     = 0;
 reg mod_demderby   = 0;
+reg mod_stargrds   = 0;
 
 always @(posedge clk_sys) begin
 	reg [7:0] mod = 0;
@@ -218,6 +223,7 @@ always @(posedge clk_sys) begin
 	mod_powerdrive	<= (mod == 2);
 	mod_maxrpm	   <= (mod == 3);
 	mod_demderby   <= (mod == 4);
+	mod_stargrds   <= (mod == 5);
 end
 
 // load the DIPS
@@ -293,7 +299,7 @@ reg btn_fire2C = 0;
 reg btn_fire2D = 0;
 
 // Generic controls - make a module from this?
-wire m_coin1   = mod_powerdrive ? (btn_coin1 | joy1[9]) : (btn_coin1 | btn_coin2 | btn_coin3 | joy[9]);
+wire m_coin1   = (mod_powerdrive | mod_stargrds) ? (btn_coin1 | joy1[9]) : (btn_coin1 | btn_coin2 | btn_coin3 | joy[9]);
 wire m_start1  = btn_start1 | joy1[8];
 wire m_up1     = btn_up     | joy1[3];
 wire m_down1   = btn_down   | joy1[2];
@@ -304,7 +310,7 @@ wire m_fire1b  = btn_fireB  | joy1[5];
 wire m_fire1c  = btn_fireC  | joy1[6];
 wire m_fire1d  = btn_fireD  | joy1[7];
 
-wire m_coin2   = mod_powerdrive & (btn_coin2 | joy2[9]);
+wire m_coin2   = (mod_powerdrive | mod_stargrds)  & (btn_coin2 | joy2[9]);
 wire m_start2  = btn_start2 | joy2[8];
 wire m_left2   = btn_left2  | joy2[1];
 wire m_right2  = btn_right2 | joy2[0];
@@ -315,7 +321,7 @@ wire m_fire2b  = btn_fire2B | joy2[5];
 wire m_fire2c  = btn_fire2C | joy2[6];
 wire m_fire2d  = btn_fire2D | joy2[7];
 
-wire m_coin3   = mod_powerdrive & joy3[9];
+wire m_coin3   = (mod_powerdrive | mod_stargrds) & joy3[9];
 wire m_start3  = joy3[8];
 wire m_left3   = joy3[1];
 wire m_right3  = joy3[0];
@@ -354,7 +360,7 @@ end
 
 // Game specific sound board/DIP/input settings
 always @(*) begin
-	sg = ~(mod_sarge | mod_maxrpm | mod_demderby);
+	sg = mod_rampage | mod_powerdrive | mod_stargrds;
 
 	input0 = 8'hff;
 	input1 = 8'hff;
@@ -391,6 +397,13 @@ always @(*) begin
 		input1 = ~{m_fire2b, m_fire2a, powerdrv_gear[1], m_fire2c, m_fire1b, m_fire1a, powerdrv_gear[0], m_fire1c};
 		input2 = ~{sndstat[0], 3'b000, m_fire3b, m_fire3a, powerdrv_gear[2], m_fire3c};
 	end
+	else if (mod_stargrds) begin
+		// normal controls for 3 players
+		input0 = ~{sw[1][0], 2'b00, sndstat[0], output5[1] ? m_start3 : m_start2, m_start1, output5[1] ? m_coin3 : m_coin2, m_coin1};
+		input1 = ~{m_right1, m_left1, m_down1, m_up1, status[6] ? ((m_fire1a|m_fire1d|m_fire1b|m_fire1c) ? {m_right1, m_left1, m_down1, m_up1} : 4'b0000) : {m_fire1a, m_fire1d, m_fire1b, m_fire1c}};
+		input2 = ~{m_right2, m_left2, m_down2, m_up2, status[7] ? ((m_fire2a|m_fire2d|m_fire2b|m_fire2c) ? {m_right2, m_left2, m_down2, m_up2} : 4'b0000) : {m_fire2a, m_fire2d, m_fire2b, m_fire2c}};
+		input4 = ~{m_right3, m_left3, m_down3, m_up3, status[8] ? ((m_fire3a|m_fire3d|m_fire3b|m_fire3c) ? {m_right3, m_left3, m_down3, m_up3} : 4'b0000) : {m_fire3a, m_fire3d, m_fire3b, m_fire3c}};
+	end
 end
 
 wire rom_download = ioctl_download && !ioctl_index;
@@ -411,7 +424,7 @@ reg  [19:0] gfx1_offset;
 
 always @(*) begin
 	if (sg) begin
-		snd_offset  = 20'h58000;
+		snd_offset  = 20'h60000;
 		gfx1_offset = 20'h50000;
 		port1_a = ioctl_addr[23:0];
 		port1_a = (ioctl_addr < snd_offset) ? ioctl_addr[23:0] : // 8 bit main ROM
@@ -420,7 +433,7 @@ always @(*) begin
 		// merge sprite roms (4x64k) into 32-bit wide words
 		port2_a     = {sp_ioctl_addr[23:18], sp_ioctl_addr[15:0], sp_ioctl_addr[17:16]};
 	end else begin
-		snd_offset  = 20'h38000;
+		snd_offset  = 20'h40000;
 		gfx1_offset = 20'h30000;
 		port1_a = ioctl_addr[23:0];
 		// merge sprite roms (4x32k) into 32-bit wide words
@@ -509,6 +522,8 @@ mcr3mono mcr3mono (
 	.video_csync(),
 	.video_ce(ce_pix),
 	.tv15Khz_mode(1),
+
+	.mod_stargrds(mod_stargrds),
 
 	.soundsgood(sg),
 	.snd_stat(sndstat),

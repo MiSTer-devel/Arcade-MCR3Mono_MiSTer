@@ -53,8 +53,11 @@ Left/Right - Steering, Up/Down - Thottle +/-, A,B - Gear +/-
 Up to 4 players. Each player has its own start button to join.
 Left/Right - Steering, A - Forward, B - Reverse
 
-# Unsupprted Games
-Star Guards (stargrds.zip)
+### Star Guards
+Up to 3 players. Each playey has its own coin and start buttons to join.
+Supported 2 control modes:
+1. A - Fire right, B - Fire bottom, X - Fire up, Y - Fire left.
+2. Any of A/B/X/Y is fire to the fly direction.
 
 # ROMs
 ```

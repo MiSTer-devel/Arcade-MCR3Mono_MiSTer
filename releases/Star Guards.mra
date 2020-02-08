@@ -1,0 +1,32 @@
+<misterromdescription>
+	<name>Star Guards</name>
+	<mameversion>0217</mameversion>
+	<mratimestamp>20200202</mratimestamp>
+	<year>1987</year>
+	<manufacturer>Bally Midway</manufacturer>
+	<category>Action</category>
+	<rbf>MCR3Mono</rbf>
+	<setname>stargrds</setname>
+	<switches default="FF,00">
+		<dip bits="2,3" name="Energy Units" ids="14,12,8,10"/>
+		<dip bits="5"   name="Demo Sounds" ids="Off,On"/>
+		<dip bits="6,7" name="Difficulty" ids="Hasdest,Hard,Easy,Medium"/>
+		<dip bits="8"   name="Service" ids="Off,On"/>
+	</switches>
+	<buttons names="Fire Right,Fire Down,Fire Up,Fire Left,Start,Coin" default="A,B,X,Y,Start,R"/>
+	<rom index="1">
+		<part>05</part>
+	</rom>
+	<rom index="0" zip="stargrds.zip" md5="14a8079eb9f3ccc0a37c11842d17bd96" type="merged|nonmerged">
+		<part crc="3ad94aa2" name="pro-0.3b"/>
+		<part crc="dba428b0" name="pro-1.5b"/>
+		<part crc="22797aaa" name="fg-0.8e"/>
+		<part crc="413fa119" name="fg-1.6e"/>
+		<part crc="7036cfe6" name="fg-2.5e"/>
+		<part crc="cc5cc003" name="fg-3.4e"/>
+		<part crc="ecfaef3e" name="bg-0.15a"/>
+		<part crc="2c75569d" name="bg-1.14b"/>
+		<part crc="d98d14ae" repeat="2" name="snd1.u17"/>
+		<part crc="7755a493" repeat="2" name="snd0.u7"/>
+	</rom>
+</misterromdescription>
