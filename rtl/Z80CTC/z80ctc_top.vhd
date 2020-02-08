@@ -67,17 +67,13 @@ begin
 		ctc_int_ack_phase <= "00";
 	elsif rising_edge(clock) then
 		-- decode ED4D (reti)
-		if clock_ena = '1' then
-			if ctc_int_ack_phase = "11" then
-				ctc_int_ack_phase <= "00";
-			elsif rd_n = '0' and m1_n = '0' then
-				case ctc_int_ack_phase is
-				when "00" => if cpu_din = x"ED" then ctc_int_ack_phase <= "01"; end if;
-				when "01" => if cpu_din = x"4D" then ctc_int_ack_phase <= "11"; elsif cpu_din /= x"ED" then ctc_int_ack_phase <= "00"; end if;
-				when "11" => if cpu_din = x"ED" then ctc_int_ack_phase <= "01"; elsif cpu_din /= x"4D" then ctc_int_ack_phase <= "00"; end if;
-				when others => ctc_int_ack_phase <= "00";
-				end case;
-			end if;
+		if clock_ena = '1' and rd_n = '0' and m1_n = '0' then
+			case ctc_int_ack_phase is
+			when "00" => if cpu_din = x"ED" then ctc_int_ack_phase <= "01"; end if;
+			when "01" => if cpu_din = x"4D" then ctc_int_ack_phase <= "11"; elsif cpu_din /= x"ED" then ctc_int_ack_phase <= "00"; end if;
+			when "11" => if cpu_din = x"ED" then ctc_int_ack_phase <= "01"; elsif cpu_din /= x"4D" then ctc_int_ack_phase <= "00"; end if;
+			when others => ctc_int_ack_phase <= "00";
+			end case;
 		end if;
 	end if;
 end process;

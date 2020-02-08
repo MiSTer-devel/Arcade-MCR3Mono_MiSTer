@@ -409,7 +409,7 @@ end
 wire rom_download = ioctl_download && !ioctl_index;
 
 wire [15:0] rom_addr;
-wire [15:0] rom_do;
+wire  [7:0] rom_do;
 wire [17:0] snd_addr;
 wire [15:0] snd_do;
 wire [15:0] sp_addr;
@@ -440,6 +440,7 @@ always @(*) begin
 		port2_a     = {sp_ioctl_addr[23:17], sp_ioctl_addr[14:0], sp_ioctl_addr[16:15]};
 	end
 end
+
 sdram sdram(
 	.*,
 	.init_n        ( pll_locked   ),
@@ -454,10 +455,10 @@ sdram sdram(
 	.port1_d       ( {ioctl_dout, ioctl_dout} ),
 	.port1_q       ( ),
 
-	.cpu1_addr     ( cpu1_addr ), //Turbo Cheap Squeak/Sounds Good with higher priority
+	.cpu1_addr     ( cpu1_addr ),
 	.cpu1_q        ( snd_do ),
-	.cpu2_addr     ( rom_download ? 18'h3ffff : {3'b000, rom_addr[15:1]} ),
-	.cpu2_q        ( rom_do ),
+	.cpu2_addr     ( ),
+	.cpu2_q        ( ),
 	.cpu3_addr     ( ),
 	.cpu3_q        ( ),
 
@@ -474,15 +475,24 @@ sdram sdram(
 	.sp_q          ( sp_do )
 );
 
+dpram #(8,16) cpu_rom
+(
+	.clk_a(clk_sys),
+	.we_a(ioctl_wr && rom_download && !ioctl_addr[24:16]),
+	.addr_a(ioctl_addr[15:0]),
+	.d_a(ioctl_dout),
+
+	.clk_b(clk_sys),
+	.addr_b(rom_addr),
+	.q_b(rom_do)
+);
+
 reg [19:1] cpu1_addr;
 
 // ROM download controller
 always @(posedge clk_sys) begin
-	reg ioctl_wr_last = 0;
-
-	ioctl_wr_last <= (ioctl_wr  && !ioctl_index);
 	if (rom_download) begin
-		if (~ioctl_wr_last && (ioctl_wr  && !ioctl_index)) begin
+		if (ioctl_wr & rom_download) begin
 			port1_req <= ~port1_req;
 			port2_req <= ~port2_req;
 		end
@@ -538,7 +548,7 @@ mcr3mono mcr3mono (
 	.output_6(output6),
 
 	.cpu_rom_addr ( rom_addr ),
-	.cpu_rom_do   ( rom_addr[0] ? rom_do[15:8] : rom_do[7:0] ),
+	.cpu_rom_do   ( rom_do   ),
 	.snd_rom_addr ( snd_addr ),
 	.snd_rom_do   ( snd_do   ),
 	.sp_addr      ( sp_addr  ),

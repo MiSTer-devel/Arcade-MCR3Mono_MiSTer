@@ -489,7 +489,7 @@ cpu_di <= cpu_rom_do        when cpu_mreq_n  = '0' and cpu_addr(15 downto 12) < 
 ------------------------------------------------------------------------
 cpu_int_ack_n     <= cpu_ioreq_n or cpu_m1_n;
 ctc_ce            <= '1' when cpu_ioreq_n = '0' and cpu_addr(7 downto 4) = x"F" else '0';
-ctc_counter_2_trg <= '1' when (vcnt = 240 and tv15Khz_mode = '1') or (vcnt >= 480 and tv15Khz_mode = '0') else '0'; --gvblank
+ctc_counter_2_trg <= '1' when (vcnt >= 240 and tv15Khz_mode = '1') or (vcnt >= 480 and tv15Khz_mode = '0') else '0'; --gvblank
 ctc_counter_3_trg <= '1' when top_frame = '1' and ((vcnt = 246 and tv15Khz_mode = '1') or (vcnt = 493 and tv15Khz_mode = '0')) else '0';
 
 ------------------------------------------

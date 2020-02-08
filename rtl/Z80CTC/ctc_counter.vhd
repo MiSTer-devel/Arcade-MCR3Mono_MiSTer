@@ -117,8 +117,7 @@ begin
 								count_ena <= '0';
 								time_constant_loaded <= '0';
 								zc_to_in <= '0';
---								zc_to_in_r <= '0';
-								clk_trg_r <= clk_trg_in;
+								clk_trg_r <= clk_trg xor d_in(4);
 							end if;
 						end if;
 
