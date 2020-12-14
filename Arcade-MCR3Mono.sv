@@ -122,14 +122,17 @@ assign LED_DISK  = 0;
 assign LED_POWER = 0;
 
 
-assign VIDEO_ARX = status[1] ? 8'd16 : 8'd21;
-assign VIDEO_ARY = status[1] ? 8'd9  : 8'd20;
+wire [1:0] ar = status[20:19];
+
+assign VIDEO_ARX =  (!ar) ? ( 8'd4) : (ar - 1'd1);
+assign VIDEO_ARY =  (!ar) ? ( 8'd3) : 12'd0;
 
 `include "build_id.v" 
 localparam CONF_STR = {
 	"A.MCR3MONO;;",
-	"H0O1,Aspect Ratio,Original,Wide;",
+	"H0OJK,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+	"OD,Deinterlacer hi-res,Off,On;",
 	"-;",
 	"h1O6,Control,Mode 1,Mode 2;",
 	"h1-;",
@@ -178,7 +181,6 @@ wire [24:0] ioctl_addr;
 wire  [7:0] ioctl_dout;
 wire  [7:0] ioctl_index;
 
-wire [10:0] ps2_key;
 
 wire [31:0] joy1, joy2, joy3, joy4;
 wire [31:0] joy = joy1 | joy2 | joy3 | joy4;
@@ -224,9 +226,8 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 	.spinner_3(sp4),
 
 	.paddle_0(pd1),
-	.paddle_1(pd2),
+	.paddle_1(pd2)
 
-	.ps2_key(ps2_key)
 );
 
 reg mod_rampage    = 0;
@@ -253,97 +254,30 @@ reg [7:0] sw[8];
 always @(posedge clk_sys) if (ioctl_wr && (ioctl_index==254) && !ioctl_addr[24:3]) sw[ioctl_addr[2:0]] <= ioctl_dout;
 
 
-wire       pressed = ps2_key[9];
-wire [7:0] code    = ps2_key[7:0];
-always @(posedge clk_sys) begin
-	reg old_state;
-	old_state <= ps2_key[10];
-	
-	if(old_state != ps2_key[10]) begin
-		casex(code)
-			'h75: btn_up            <= pressed; // up
-			'h72: btn_down          <= pressed; // down
-			'h6B: btn_left          <= pressed; // left
-			'h74: btn_right         <= pressed; // right
-			'h76: btn_coin1         <= pressed; // ESC
-			'h05: btn_start1        <= pressed; // F1
-			'h06: btn_start2        <= pressed; // F2
-			//'h04: btn_start3        <= pressed; // F3
-			//'h0C: btn_start4        <= pressed; // F4
-			'h14: btn_fireA         <= pressed; // l-ctrl
-			'h11: btn_fireB         <= pressed; // l-alt
-			'h29: btn_fireC         <= pressed; // Space
-			'h12: btn_fireD         <= pressed; // l-shift
-			// JPAC/IPAC/MAME Style Codes
-			'h16: btn_start1        <= pressed; // 1
-			'h1E: btn_start2        <= pressed; // 2
-			//'h26: btn_start3        <= pressed; // 3
-			//'h25: btn_start4        <= pressed; // 4
-			'h2E: btn_coin1         <= pressed; // 5
-			'h36: btn_coin2         <= pressed; // 6
-			'h3D: btn_coin3         <= pressed; // 7
-			//'h3E: btn_coin4         <= pressed; // 8
-			'h2D: btn_up2           <= pressed; // R
-			'h2B: btn_down2         <= pressed; // F
-			'h23: btn_left2         <= pressed; // D
-			'h34: btn_right2        <= pressed; // G
-			'h1C: btn_fire2A        <= pressed; // A
-			'h1B: btn_fire2B        <= pressed; // S
-			'h21: btn_fire2C        <= pressed; // Q
-			'h1D: btn_fire2D        <= pressed; // W
-		endcase
-	end
-end
-
-reg btn_left   = 0;
-reg btn_right  = 0;
-reg btn_down   = 0;
-reg btn_up     = 0;
-reg btn_fireA  = 0;
-reg btn_fireB  = 0;
-reg btn_fireC  = 0;
-reg btn_fireD  = 0;
-reg btn_coin1  = 0;
-reg btn_coin2  = 0;
-reg btn_coin3  = 0;
-//reg btn_coin4  = 0;
-reg btn_start1 = 0;
-reg btn_start2 = 0;
-//reg btn_start3 = 0;
-//reg btn_start4 = 0;
-reg btn_up2    = 0;
-reg btn_down2  = 0;
-reg btn_left2  = 0;
-reg btn_right2 = 0;
-reg btn_fire2A = 0;
-reg btn_fire2B = 0;
-reg btn_fire2C = 0;
-reg btn_fire2D = 0;
-
 // Generic controls - make a module from this?
-wire m_coin1   = (mod_powerdrive | mod_stargrds) ? (btn_coin1 | joy1[9]) : (btn_coin1 | btn_coin2 | btn_coin3 | joy[9]);
-wire m_start1  = btn_start1 | joy1[8];
-wire m_up1     = btn_up     | joy1[3];
-wire m_down1   = btn_down   | joy1[2];
-wire m_left1   = btn_left   | joy1[1];
-wire m_right1  = btn_right  | joy1[0];
-wire m_fire1a  = btn_fireA  | joy1[4];
-wire m_fire1b  = btn_fireB  | joy1[5];
-wire m_fire1c  = btn_fireC  | joy1[6];
-wire m_fire1d  = btn_fireD  | joy1[7];
-wire m_spccw1  =              joy1[30];
-wire m_spcw1   =              joy1[31];
+wire m_coin1   = (mod_powerdrive | mod_stargrds) ? ( joy1[9]) : ( joy[9]);
+wire m_start1  = joy1[8];
+wire m_up1     = joy1[3];
+wire m_down1   = joy1[2];
+wire m_left1   = joy1[1];
+wire m_right1  = joy1[0];
+wire m_fire1a  = joy1[4];
+wire m_fire1b  = joy1[5];
+wire m_fire1c  = joy1[6];
+wire m_fire1d  = joy1[7];
+wire m_spccw1  = joy1[30];
+wire m_spcw1   = joy1[31];
 
-wire m_coin2   = (mod_powerdrive | mod_stargrds)  & (btn_coin2 | joy2[9]);
-wire m_start2  = btn_start2 | joy2[8];
-wire m_left2   = btn_left2  | joy2[1];
-wire m_right2  = btn_right2 | joy2[0];
-wire m_up2     = btn_up2    | joy2[3];
-wire m_down2   = btn_down2  | joy2[2];
-wire m_fire2a  = btn_fire2A | joy2[4];
-wire m_fire2b  = btn_fire2B | joy2[5];
-wire m_fire2c  = btn_fire2C | joy2[6];
-wire m_fire2d  = btn_fire2D | joy2[7];
+wire m_coin2   = (mod_powerdrive | mod_stargrds)  & (joy2[9]);
+wire m_start2  = joy2[8];
+wire m_left2   = joy2[1];
+wire m_right2  = joy2[0];
+wire m_up2     = joy2[3];
+wire m_down2   = joy2[2];
+wire m_fire2a  = joy2[4];
+wire m_fire2b  = joy2[5];
+wire m_fire2c  = joy2[6];
+wire m_fire2d  = joy2[7];
 wire m_spccw2  =              joy2[30];
 wire m_spcw2   =              joy2[31];
 
@@ -560,8 +494,8 @@ mcr3mono mcr3mono (
 	.video_hs(HSync),
 	.video_vs(VSync),
 	.video_csync(),
-	.video_ce(ce_pix),
-	.tv15Khz_mode(1),
+	.video_ce(ce_pix_old),
+	.tv15Khz_mode(~status[13]),
 
 	.mod_stargrds(mod_stargrds),
 
@@ -589,15 +523,23 @@ mcr3mono mcr3mono (
 	.dl_wr(ioctl_wr && !ioctl_index)
 );
 
+wire ce_pix_old;
 wire ce_pix;
 wire HBlank, VBlank;
 wire HSync, VSync;
 wire [2:0] r,g,b;
 
+always @(posedge clk_sys) begin
+        reg [2:0] div;
+
+        div <= div + 1'd1;
+        ce_pix <= !div;
+end
 
 arcade_video #(512,9) arcade_video
 (
 	.*,
+	.ce_pix(status[13] ? ce_pix_old: ce_pix),
 	.clk_video(clk_sys),
 	.RGB_in({r,g,b}),
 
