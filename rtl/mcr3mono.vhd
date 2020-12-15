@@ -381,12 +381,12 @@ begin
 					if hcnt = 512+90+9+6 then video_hs <= '1'; end if; -- sync pulse  96/25*20 = 77
 																				       -- back porch  48/25*20 = 38
 					video_hblank <= '1';
-					if hcnt >= 2+16+16 and hcnt < 514+16-1 then
+					if hcnt >= 2+16 and hcnt < 514+16 then
 						video_hblank <= '0';
 					end if;
 
 					video_vblank <= '1';
-					if vcnt >= 2 and vcnt < 481 then
+					if vcnt >= 0 and vcnt < 480 then
 						video_vblank <= '0';
 					end if;
 

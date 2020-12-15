@@ -493,9 +493,7 @@ mcr3mono mcr3mono (
 	.video_vblank(VBlank),
 	.video_hs(HSync),
 	.video_vs(VSync),
-	.video_csync(),
-	.video_ce(ce_pix_old),
-	.tv15Khz_mode(~status[13] || status[5:3]),
+	.tv15Khz_mode(~hires),
 
 	.mod_stargrds(mod_stargrds),
 
@@ -523,24 +521,25 @@ mcr3mono mcr3mono (
 	.dl_wr(ioctl_wr && !ioctl_index)
 );
 
-wire ce_pix_old;
-wire ce_pix;
 wire HBlank, VBlank;
 wire HSync, VSync;
 wire [2:0] r,g,b;
 
-always @(posedge clk_sys) begin
-        reg [2:0] div;
+wire hires = status[13] && !status[5:3];
 
-        div <= div + 1'd1;
-        ce_pix <= !div;
+reg  ce_pix;
+always @(posedge clk_80M) begin
+	reg [2:0] div;
+	
+	div <= div + 1'd1;
+	ce_pix <= hires ? !div[1:0] : !div;
 end
 
 arcade_video #(512,9) arcade_video
 (
 	.*,
-	.ce_pix(status[13] ? ce_pix_old: ce_pix),
-	.clk_video(clk_sys),
+	.ce_pix(ce_pix),
+	.clk_video(clk_80M),
 	.RGB_in({r,g,b}),
 
 	.fx(status[5:3])
