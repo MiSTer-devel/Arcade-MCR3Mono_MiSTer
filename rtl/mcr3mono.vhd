@@ -481,7 +481,7 @@ cpu_di <= cpu_rom_do        when cpu_mreq_n  = '0' and cpu_addr(15 downto 12) < 
           sp_ram_cache_do_r when cpu_mreq_n  = '0' and (cpu_addr and x"FC00") = x"E800"   else -- sprite ram  E800-E9FF + mirroring 0200
           bg_ram_do_r       when cpu_mreq_n  = '0' and (cpu_addr and x"F800") = x"F000"   else -- video ram   F000-F7FF
           ctc_do            when cpu_int_ack_n = '0' or ctc_ce = '1'                      else -- ctc (interrupt vector or counter data)
-          ssio_do           when cpu_ioreq_n = '0' and cpu_addr(7 downto 5) = "000"       else -- 0x00-0x1F
+          ssio_do           when cpu_ioreq_n = '0' and cpu_addr(7) = '0'                  else -- 0x00-0x7F
           X"FF";
 
 ------------------------------------------------------------------------

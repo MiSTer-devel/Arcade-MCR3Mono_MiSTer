@@ -124,15 +124,15 @@ assign LED_POWER = 0;
 
 wire [1:0] ar = status[20:19];
 
-assign VIDEO_ARX =  (!ar) ? ( 8'd4) : (ar - 1'd1);
-assign VIDEO_ARY =  (!ar) ? ( 8'd3) : 12'd0;
+assign VIDEO_ARX =  (!ar) ? 8'd21 : (ar - 1'd1);
+assign VIDEO_ARY =  (!ar) ? 8'd20 : 12'd0;
 
 `include "build_id.v" 
 localparam CONF_STR = {
 	"A.MCR3MONO;;",
 	"H0OJK,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
-	"OD,Deinterlacer hi-res,Off,On;",
+	"D5OD,Deinterlacer Hi-Res,Off,On;",
 	"-;",
 	"h1O6,Control,Mode 1,Mode 2;",
 	"h1-;",
@@ -199,7 +199,7 @@ hps_io #(.STRLEN($size(CONF_STR)>>3)) hps_io
 
 	.buttons(buttons),
 	.status(status),
-	.status_menumask({mod_stargrds, mod_maxrpm, mod_demderby, mod_sarge, direct_video}),
+	.status_menumask({|status[5:3], mod_stargrds, mod_maxrpm, mod_demderby, mod_sarge, direct_video}),
 	.forced_scandoubler(forced_scandoubler),
 	.gamma_bus(gamma_bus),
 	.direct_video(direct_video),
@@ -255,7 +255,7 @@ always @(posedge clk_sys) if (ioctl_wr && (ioctl_index==254) && !ioctl_addr[24:3
 
 
 // Generic controls - make a module from this?
-wire m_coin1   = (mod_powerdrive | mod_stargrds) ? ( joy1[9]) : ( joy[9]);
+wire m_coin1   = (mod_powerdrive | mod_stargrds | mod_demderby) ? joy1[9] : joy[9];
 wire m_start1  = joy1[8];
 wire m_up1     = joy1[3];
 wire m_down1   = joy1[2];
@@ -268,7 +268,7 @@ wire m_fire1d  = joy1[7];
 wire m_spccw1  = joy1[30];
 wire m_spcw1   = joy1[31];
 
-wire m_coin2   = (mod_powerdrive | mod_stargrds)  & (joy2[9]);
+wire m_coin2   = (mod_powerdrive | mod_stargrds | mod_demderby) & joy2[9];
 wire m_start2  = joy2[8];
 wire m_left2   = joy2[1];
 wire m_right2  = joy2[0];
@@ -278,10 +278,10 @@ wire m_fire2a  = joy2[4];
 wire m_fire2b  = joy2[5];
 wire m_fire2c  = joy2[6];
 wire m_fire2d  = joy2[7];
-wire m_spccw2  =              joy2[30];
-wire m_spcw2   =              joy2[31];
+wire m_spccw2  = joy2[30];
+wire m_spcw2   = joy2[31];
 
-wire m_coin3   = (mod_powerdrive | mod_stargrds) & joy3[9];
+wire m_coin3   = (mod_powerdrive | mod_stargrds | mod_demderby) & joy3[9];
 wire m_start3  = joy3[8];
 wire m_left3   = joy3[1];
 wire m_right3  = joy3[0];
@@ -294,7 +294,7 @@ wire m_fire3d  = joy3[7];
 wire m_spccw3  = joy3[30];
 wire m_spcw3   = joy3[31];
 
-wire m_coin4   = 0;
+wire m_coin4   = joy4[9];
 wire m_start4  = joy4[8];
 wire m_left4   = joy4[1];
 wire m_right4  = joy4[0];
@@ -495,7 +495,7 @@ mcr3mono mcr3mono (
 	.video_vs(VSync),
 	.video_csync(),
 	.video_ce(ce_pix_old),
-	.tv15Khz_mode(~status[13]),
+	.tv15Khz_mode(~status[13] || status[5:3]),
 
 	.mod_stargrds(mod_stargrds),
 
