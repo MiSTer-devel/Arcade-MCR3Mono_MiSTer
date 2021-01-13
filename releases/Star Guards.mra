@@ -29,4 +29,5 @@
 		<part crc="d98d14ae" repeat="2" name="snd1.u17"/>
 		<part crc="7755a493" repeat="2" name="snd0.u7"/>
 	</rom>
+	<nvram index="4" size="2048"/>
 </misterromdescription>

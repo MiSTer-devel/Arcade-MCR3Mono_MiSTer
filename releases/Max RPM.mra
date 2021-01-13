@@ -28,4 +28,5 @@
 		<part crc="55c3b759" name="turbskwk.u5"/>
 		<part crc="31a2da2e" name="turbskwk.u4"/>
 	</rom>
+	<nvram index="4" size="2048"/>
 </misterromdescription>

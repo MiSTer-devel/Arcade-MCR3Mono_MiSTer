@@ -172,8 +172,11 @@ port(
  -- internal ROM download
  dl_addr        : in std_logic_vector(18 downto 0);
  dl_data        : in std_logic_vector(7 downto 0);
- dl_wr          : in std_logic
- );
+ dl_wr          : in std_logic;
+ dl_din         : out std_logic_vector(7 downto 0);
+ dl_nvram       : in  std_logic;
+ dl_nvram_wr    : in  std_logic
+);
 end mcr3mono;
 
 architecture struct of mcr3mono is
@@ -780,14 +783,20 @@ begin
 end process;
 
 -- working RAM   0xE000-0xE7FF
-wram : entity work.cmos_ram
+wram : entity work.dpram
 generic map( dWidth => 8, aWidth => 11)
 port map(
- clk  => clock_vidn,
- we   => wram_we,
- addr => cpu_addr(10 downto 0),
- d    => cpu_do,
- q    => wram_do
+	clk_a  => clock_vidn,
+	we_a   => wram_we,
+	addr_a => cpu_addr(10 downto 0),
+	d_a    => cpu_do,
+	q_a    => wram_do,
+ 
+	clk_b  => clock_vid,
+	we_b   => (dl_wr or dl_nvram_wr) and dl_nvram,
+	addr_b => dl_addr(10 downto 0),
+	d_b    => dl_data(7 downto 0),
+	q_b     => dl_din(7 downto 0)
 );
 
 -- video RAM   0xF000-0xF7FF
