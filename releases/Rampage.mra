@@ -32,4 +32,5 @@
 		<part crc="cffd7fa5" name="u-7_rev.2_8-14-86.u7"/>
 		<part crc="11f787e4" name="u-8_rev.2_8-14-86.u8"/>
 	</rom>
+	<nvram index="4" size="2048"/>
 </misterromdescription>

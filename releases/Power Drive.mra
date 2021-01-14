@@ -32,4 +32,5 @@
 		<part crc="78713e78" name="power_drive_snd_u7.u7"/>
 		<part crc="15714036" name="power_drive_snd_u8.u8"/>
 	</rom>
+	<nvram index="4" size="2048"/>
 </misterromdescription>
