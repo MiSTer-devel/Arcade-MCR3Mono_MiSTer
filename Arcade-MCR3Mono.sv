@@ -130,7 +130,7 @@ localparam CONF_STR = {
 	"R0,Reset;",
 	"J1,Fire A,Fire B,Fire C,Fire D,Start,Coin;",
 	"jn,A,B,X,Y,Start,R;",
-	"jp,B,A,Y,X,Start,Select;",
+	"jp,B,A,Y,X,Start,R;",
 	"V,v",`BUILD_DATE
 };
 
