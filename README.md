@@ -77,8 +77,8 @@ Quickreference for folders and file placement:
 
 /_Arcade/<game name>.mra
 /_Arcade/cores/<game rbf>.rbf
-/_Arcade/mame/<mame rom>.zip
-/_Arcade/hbmame/<hbmame rom>.zip
+/games/mame/<mame rom>.zip
+/games/hbmame/<hbmame rom>.zip
 
 ```
 
